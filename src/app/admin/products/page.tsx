@@ -1,0 +1,195 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { CATEGORIES } from "@/lib/catalog";
+
+type Prod = any;
+
+export default function AdminProductsPage() {
+  const [products, setProducts] = useState<Prod[]>([]);
+  const [producers, setProducers] = useState<any[]>([]);
+  const [form, setForm] = useState({ name: "", slug: "", price: "", image: "", category: "", producerId: "" });
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [status, setStatus] = useState<string>("");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    Promise.all([
+      fetch("/api/admin/products").then((r) => r.json()),
+      fetch("/api/admin/producers").then((r) => r.json()),
+    ])
+      .then(([productData, producerData]) => {
+        setProducts(productData);
+        setProducers(producerData);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  async function createProduct(e: any) {
+    e.preventDefault();
+    setStatus("");
+    const body = { ...form };
+    const method = editingId ? "PATCH" : "POST";
+    const endpoint = editingId ? `/api/admin/products/${editingId}` : "/api/admin/products";
+
+    const res = await fetch(endpoint, {
+      method,
+      body: JSON.stringify(body),
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const saved = await res.json();
+    if (!res.ok) {
+      setStatus(saved?.error || "Kayıt işlemi başarısız oldu.");
+      return;
+    }
+
+    setProducts((current) =>
+      editingId ? current.map((p) => (p.id === editingId ? saved : p)) : [saved, ...current],
+    );
+    setForm({ name: "", slug: "", price: "", image: "", category: "", producerId: "" });
+    setEditingId(null);
+    setStatus(editingId ? "Ürün güncellendi." : "Yeni ürün oluşturuldu.");
+  }
+
+  async function deleteProduct(id: number) {
+    if (!confirm("Silinsin mi?")) return;
+    await fetch(`/api/admin/products/${id}`, { method: "DELETE" });
+    setProducts((s) => s.filter((p) => p.id !== id));
+    if (editingId === id) {
+      setEditingId(null);
+      setForm({ name: "", slug: "", price: "", image: "", category: "", producerId: "" });
+    }
+    setStatus("Ürün silindi.");
+  }
+
+  function beginEdit(product: any) {
+    setEditingId(product.id);
+    setForm({
+      name: product.name ?? "",
+      slug: product.slug ?? "",
+      price: product.priceCents ? String(product.priceCents / 100) : "",
+      image: product.image ?? "",
+      category: product.category ?? "",
+      producerId: product.producerId ? String(product.producerId) : "",
+    });
+    setStatus("Düzenleme modu aktif.");
+  }
+
+  function resetForm() {
+    setEditingId(null);
+    setForm({ name: "", slug: "", price: "", image: "", category: "", producerId: "" });
+    setStatus("Form temizlendi.");
+  }
+
+  return (
+    <div className="p-6">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-semibold">Ürün Yönetimi</h2>
+          <p className="mt-1 text-sm text-neutral-600">
+            Ürünleri oluşturun, düzenleyin, kaldırın ve üreticiye bağlayın.
+          </p>
+        </div>
+        <div className="text-sm text-neutral-500">
+          {loading ? "Yükleniyor..." : `${products.length} ürün`}
+        </div>
+      </div>
+
+      {status ? (
+        <div className="mt-4 rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-700">
+          {status}
+        </div>
+      ) : null}
+
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[360px_1fr]">
+        <form onSubmit={createProduct} className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="text-lg font-semibold">{editingId ? "Ürünü Düzenle" : "Yeni Ürün"}</h3>
+            {editingId ? (
+              <button type="button" onClick={resetForm} className="text-sm text-neutral-600 hover:text-neutral-900">
+                İptal
+              </button>
+            ) : null}
+          </div>
+
+          <div className="mt-4 grid grid-cols-1 gap-3">
+            <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Ürün adı" className="rounded-md border border-neutral-200 p-2 text-sm outline-none focus:border-blue-500" />
+            <input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} placeholder="slug" className="rounded-md border border-neutral-200 p-2 text-sm outline-none focus:border-blue-500" />
+            <input value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="Fiyat (ör. 12.5)" className="rounded-md border border-neutral-200 p-2 text-sm outline-none focus:border-blue-500" />
+            <input value={form.image} onChange={(e) => setForm({ ...form, image: e.target.value })} placeholder="Görsel URL" className="rounded-md border border-neutral-200 p-2 text-sm outline-none focus:border-blue-500" />
+            <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="rounded-md border border-neutral-200 p-2 text-sm outline-none focus:border-blue-500">
+              <option value="">Kategori seçin</option>
+              {CATEGORIES.map((category) => (
+                <option key={category.slug} value={category.slug}>
+                  {category.title}
+                </option>
+              ))}
+            </select>
+            <select value={form.producerId} onChange={(e) => setForm({ ...form, producerId: e.target.value })} className="rounded-md border border-neutral-200 p-2 text-sm outline-none focus:border-blue-500">
+              <option value="">Üretici seçin</option>
+              {producers.map((pr) => (
+                <option key={pr.id} value={pr.id}>
+                  {pr.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="mt-4 flex gap-2">
+            <button className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+              {editingId ? "Güncelle" : "Oluştur"}
+            </button>
+            {editingId ? (
+              <button type="button" onClick={resetForm} className="rounded-md border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50">
+                Temizle
+              </button>
+            ) : null}
+          </div>
+        </form>
+
+        <div className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="text-lg font-semibold">Mevcut Ürünler</h3>
+            <button onClick={() => window.location.reload()} className="text-sm text-neutral-600 hover:text-neutral-900">
+              Yenile
+            </button>
+          </div>
+
+          <div className="mt-4 overflow-hidden rounded-lg border border-neutral-200">
+            <div className="grid grid-cols-[1.4fr_1fr_1fr_110px] gap-3 border-b border-neutral-200 bg-neutral-50 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+              <div>Ürün</div>
+              <div>Üretici</div>
+              <div>Kategori</div>
+              <div>İşlemler</div>
+            </div>
+
+            <div className="divide-y divide-neutral-200">
+              {products.map((p: any) => (
+                <div key={p.id} className="grid grid-cols-[1.4fr_1fr_1fr_110px] gap-3 px-4 py-3 text-sm">
+                  <div>
+                    <div className="font-medium text-neutral-900">{p.name}</div>
+                    <div className="mt-1 text-xs text-neutral-500">
+                      {p.slug} • {p.priceCents ? `${(p.priceCents / 100).toFixed(2)} TL` : "Fiyat yok"}
+                    </div>
+                  </div>
+                  <div className="text-neutral-700">{p.producer?.name ?? "-"}</div>
+                  <div className="text-neutral-700">{p.category ?? "-"}</div>
+                  <div className="flex flex-wrap gap-2">
+                    <button onClick={() => beginEdit(p)} className="rounded-md border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50">
+                      Düzenle
+                    </button>
+                    <button onClick={() => deleteProduct(p.id)} className="rounded-md border border-rose-200 px-3 py-1.5 text-xs font-medium text-rose-700 hover:bg-rose-50">
+                      Sil
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

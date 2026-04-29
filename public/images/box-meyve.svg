@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
+  <rect width="1200" height="900" fill="#f5f5f5"/>
+  <rect x="240" y="220" width="720" height="460" rx="40" fill="#ffffff" stroke="#e5e5e5" stroke-width="8"/>
+  <circle cx="420" cy="430" r="70" fill="#fb7185"/>
+  <circle cx="600" cy="430" r="70" fill="#f97316"/>
+  <circle cx="780" cy="430" r="70" fill="#60a5fa"/>
+  <text x="600" y="740" text-anchor="middle" font-family="ui-sans-serif, system-ui" font-size="54" fill="#171717" font-weight="700">Meyve Kutusu</text>
+</svg>
