@@ -128,26 +128,26 @@ export default function SellerPage() {
       <div className="mt-6 grid gap-6 lg:grid-cols-[360px_1fr]">
         <Card>
           <CardHeader>
-            <div className="text-sm font-semibold text-neutral-900">Satıcı Kaydı</div>
-            <div className="mt-1 text-xs text-neutral-600">
+            <div className="text-sm font-semibold text-emerald-900">Satıcı Kaydı</div>
+            <div className="mt-1 text-xs text-emerald-600">
               SQLite üzerinde satıcı rolü ile kayıt oluşturur.
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
             <div>
-              <label className="text-xs font-semibold text-neutral-700">Ad Soyad</label>
+              <label className="text-xs font-semibold text-emerald-700">Ad Soyad</label>
               <Input value={name} onChange={(e) => setName(e.target.value)} />
             </div>
             <div>
-              <label className="text-xs font-semibold text-neutral-700">E-posta</label>
+              <label className="text-xs font-semibold text-emerald-700">E-posta</label>
               <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
             <div>
-              <label className="text-xs font-semibold text-neutral-700">Şehir</label>
+              <label className="text-xs font-semibold text-emerald-700">Şehir</label>
               <Input value={city} onChange={(e) => setCity(e.target.value)} />
             </div>
             <div>
-              <label className="text-xs font-semibold text-neutral-700">Mağaza Adı</label>
+              <label className="text-xs font-semibold text-emerald-700">Mağaza Adı</label>
               <Input value={shopName} onChange={(e) => setShopName(e.target.value)} />
             </div>
             <Button className="w-full" disabled={submitting} onClick={createSeller}>
@@ -163,26 +163,26 @@ export default function SellerPage() {
 
         <Card>
           <CardHeader>
-            <div className="text-sm font-semibold text-neutral-900">Kayıtlı Satıcılar</div>
-            <div className="mt-1 text-xs text-neutral-600">
+            <div className="text-sm font-semibold text-emerald-900">Kayıtlı Satıcılar</div>
+            <div className="mt-1 text-xs text-emerald-600">
               Buradaki kayıtlar admin panelinden de yönetilebilir.
             </div>
           </CardHeader>
           <CardContent>
             {loading ? (
-              <div className="text-sm text-neutral-600">Yükleniyor...</div>
+              <div className="text-sm text-emerald-600">Yükleniyor...</div>
             ) : sellers.length === 0 ? (
-              <div className="text-sm text-neutral-600">Henüz satıcı kaydı yok.</div>
+              <div className="text-sm text-emerald-600">Henüz satıcı kaydı yok.</div>
             ) : (
               <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 {sellers.map((seller) => (
-                  <div key={seller.id} className="rounded-xl border border-neutral-200 p-3">
-                    <div className="text-sm font-semibold text-neutral-900">{seller.name}</div>
-                    <div className="mt-1 text-xs text-neutral-600">{seller.email}</div>
-                    <div className="mt-2 text-xs text-neutral-500">
+                  <div key={seller.id} className="rounded-xl border border-emerald-200 p-3">
+                    <div className="text-sm font-semibold text-emerald-900">{seller.name}</div>
+                    <div className="mt-1 text-xs text-emerald-600">{seller.email}</div>
+                    <div className="mt-2 text-xs text-emerald-500">
                       {seller.shopName ?? "Mağaza adı yok"}
                     </div>
-                    <div className="text-xs text-neutral-500">{seller.city ?? "Şehir yok"}</div>
+                    <div className="text-xs text-emerald-500">{seller.city ?? "Şehir yok"}</div>
                   </div>
                 ))}
               </div>

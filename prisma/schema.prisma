@@ -60,4 +60,31 @@ model Sku {
   productId Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  orderItems OrderItem[]
+}
+
+model Order {
+  id            String      @id @default(cuid())
+  userId        String?     // Optional, user might be guest
+  customerName  String
+  customerEmail String
+  address       String
+  city          String
+  status        String      @default("PENDING") // PENDING, SUCCESS, FAILED
+  totalCents    Int
+  items         OrderItem[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model OrderItem {
+  id         String   @id @default(cuid())
+  order      Order    @relation(fields: [orderId], references: [id])
+  orderId    String
+  sku        Sku      @relation(fields: [skuId], references: [skuId])
+  skuId      String
+  qty        Int
+  priceCents Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }

@@ -88,38 +88,38 @@ export default function AdminProductsPage() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h2 className="text-2xl font-semibold">Ürün Yönetimi</h2>
-          <p className="mt-1 text-sm text-neutral-600">
+          <p className="mt-1 text-sm text-emerald-600">
             Ürünleri oluşturun, düzenleyin, kaldırın ve üreticiye bağlayın.
           </p>
         </div>
-        <div className="text-sm text-neutral-500">
+        <div className="text-sm text-emerald-500">
           {loading ? "Yükleniyor..." : `${products.length} ürün`}
         </div>
       </div>
 
       {status ? (
-        <div className="mt-4 rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-700">
+        <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
           {status}
         </div>
       ) : null}
 
       <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[360px_1fr]">
-        <form onSubmit={createProduct} className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
+        <form onSubmit={createProduct} className="rounded-xl border border-emerald-200 bg-white p-4 shadow-sm">
           <div className="flex items-center justify-between gap-3">
             <h3 className="text-lg font-semibold">{editingId ? "Ürünü Düzenle" : "Yeni Ürün"}</h3>
             {editingId ? (
-              <button type="button" onClick={resetForm} className="text-sm text-neutral-600 hover:text-neutral-900">
+              <button type="button" onClick={resetForm} className="text-sm text-emerald-600 hover:text-emerald-900">
                 İptal
               </button>
             ) : null}
           </div>
 
           <div className="mt-4 grid grid-cols-1 gap-3">
-            <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Ürün adı" className="rounded-md border border-neutral-200 p-2 text-sm outline-none focus:border-blue-500" />
-            <input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} placeholder="slug" className="rounded-md border border-neutral-200 p-2 text-sm outline-none focus:border-blue-500" />
-            <input value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="Fiyat (ör. 12.5)" className="rounded-md border border-neutral-200 p-2 text-sm outline-none focus:border-blue-500" />
-            <input value={form.image} onChange={(e) => setForm({ ...form, image: e.target.value })} placeholder="Görsel URL" className="rounded-md border border-neutral-200 p-2 text-sm outline-none focus:border-blue-500" />
-            <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="rounded-md border border-neutral-200 p-2 text-sm outline-none focus:border-blue-500">
+            <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Ürün adı" className="rounded-md border border-emerald-200 p-2 text-sm outline-none focus:border-blue-500" />
+            <input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} placeholder="slug" className="rounded-md border border-emerald-200 p-2 text-sm outline-none focus:border-blue-500" />
+            <input value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="Fiyat (ör. 12.5)" className="rounded-md border border-emerald-200 p-2 text-sm outline-none focus:border-blue-500" />
+            <input value={form.image} onChange={(e) => setForm({ ...form, image: e.target.value })} placeholder="Görsel URL" className="rounded-md border border-emerald-200 p-2 text-sm outline-none focus:border-blue-500" />
+            <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="rounded-md border border-emerald-200 p-2 text-sm outline-none focus:border-blue-500">
               <option value="">Kategori seçin</option>
               {CATEGORIES.map((category) => (
                 <option key={category.slug} value={category.slug}>
@@ -127,7 +127,7 @@ export default function AdminProductsPage() {
                 </option>
               ))}
             </select>
-            <select value={form.producerId} onChange={(e) => setForm({ ...form, producerId: e.target.value })} className="rounded-md border border-neutral-200 p-2 text-sm outline-none focus:border-blue-500">
+            <select value={form.producerId} onChange={(e) => setForm({ ...form, producerId: e.target.value })} className="rounded-md border border-emerald-200 p-2 text-sm outline-none focus:border-blue-500">
               <option value="">Üretici seçin</option>
               {producers.map((pr) => (
                 <option key={pr.id} value={pr.id}>
@@ -142,42 +142,42 @@ export default function AdminProductsPage() {
               {editingId ? "Güncelle" : "Oluştur"}
             </button>
             {editingId ? (
-              <button type="button" onClick={resetForm} className="rounded-md border border-neutral-200 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50">
+              <button type="button" onClick={resetForm} className="rounded-md border border-emerald-200 px-4 py-2 text-sm font-medium text-emerald-700 hover:bg-emerald-50">
                 Temizle
               </button>
             ) : null}
           </div>
         </form>
 
-        <div className="rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
+        <div className="rounded-xl border border-emerald-200 bg-white p-4 shadow-sm">
           <div className="flex items-center justify-between gap-3">
             <h3 className="text-lg font-semibold">Mevcut Ürünler</h3>
-            <button onClick={() => window.location.reload()} className="text-sm text-neutral-600 hover:text-neutral-900">
+            <button onClick={() => window.location.reload()} className="text-sm text-emerald-600 hover:text-emerald-900">
               Yenile
             </button>
           </div>
 
-          <div className="mt-4 overflow-hidden rounded-lg border border-neutral-200">
-            <div className="grid grid-cols-[1.4fr_1fr_1fr_110px] gap-3 border-b border-neutral-200 bg-neutral-50 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-neutral-500">
+          <div className="mt-4 overflow-hidden rounded-lg border border-emerald-200">
+            <div className="grid grid-cols-[1.4fr_1fr_1fr_110px] gap-3 border-b border-emerald-200 bg-emerald-50 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-emerald-500">
               <div>Ürün</div>
               <div>Üretici</div>
               <div>Kategori</div>
               <div>İşlemler</div>
             </div>
 
-            <div className="divide-y divide-neutral-200">
+            <div className="divide-y divide-emerald-200">
               {products.map((p: any) => (
                 <div key={p.id} className="grid grid-cols-[1.4fr_1fr_1fr_110px] gap-3 px-4 py-3 text-sm">
                   <div>
-                    <div className="font-medium text-neutral-900">{p.name}</div>
-                    <div className="mt-1 text-xs text-neutral-500">
+                    <div className="font-medium text-emerald-900">{p.name}</div>
+                    <div className="mt-1 text-xs text-emerald-500">
                       {p.slug} • {p.priceCents ? `${(p.priceCents / 100).toFixed(2)} TL` : "Fiyat yok"}
                     </div>
                   </div>
-                  <div className="text-neutral-700">{p.producer?.name ?? "-"}</div>
-                  <div className="text-neutral-700">{p.category ?? "-"}</div>
+                  <div className="text-emerald-700">{p.producer?.name ?? "-"}</div>
+                  <div className="text-emerald-700">{p.category ?? "-"}</div>
                   <div className="flex flex-wrap gap-2">
-                    <button onClick={() => beginEdit(p)} className="rounded-md border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:bg-neutral-50">
+                    <button onClick={() => beginEdit(p)} className="rounded-md border border-emerald-200 px-3 py-1.5 text-xs font-medium text-emerald-700 hover:bg-emerald-50">
                       Düzenle
                     </button>
                     <button onClick={() => deleteProduct(p.id)} className="rounded-md border border-rose-200 px-3 py-1.5 text-xs font-medium text-rose-700 hover:bg-rose-50">

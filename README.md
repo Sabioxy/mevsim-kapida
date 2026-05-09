@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mevsim Kapıda - E-Ticaret Platformu
 
-## Getting Started
+Mevsim Kapıda, doğrudan sera üreticilerinden taze ürünlerin satıldığı, stok kontrollü, JWT yetkilendirmeli ve entegre ödeme (mock) sistemine sahip uçtan uca bir e-ticaret platformudur. Proje **Next.js 14/15**, **Prisma**, **SQLite** ve **TailwindCSS (v4)** üzerine inşa edilmiştir.
 
-First, run the development server:
+## Özellikler
 
+- **Gelişmiş Sepet ve Ödeme Sistemi**: `CartProvider` ile dinamik sepet yönetimi, kredi kartı entegrasyonlu (sanal) ödeme akışı.
+- **Stok Kontrolü**: Sipariş tamamlandığında Prisma Transaction ile güvenli stok (SKU) düşümü.
+- **Güvenli Kimlik Doğrulama**: `jose` kullanılarak şifrelenmiş JWT ve `HttpOnly` çerez tabanlı oturum yönetimi.
+- **Dinamik Veritabanı**: Statik dosya bağımlılığı olmadan ürünler ve varyantlar tamamen SQLite üzerinden beslenir.
+- **Premium Tasarım**: `emerald` (zümrüt yeşili) ve beyaz tonları ağırlıklı, dönüşüm odaklı modern UI arayüzü.
+
+---
+
+## 🚀 Kurulum (Github'dan Klonladıktan Sonra İzlenecek Adımlar)
+
+Projeyi bilgisayarınıza indirdikten sonra eksiksiz bir şekilde ayağa kaldırmak için aşağıdaki adımları **sırasıyla** uygulayın.
+
+### 1. Bağımlılıkları Yükleyin
+Proje dizininde terminali açın ve gerekli Node modüllerini kurun:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Veritabanını Hazırlayın (Prisma + SQLite)
+Projeyi ilk indirdiğinizde `.db` dosyası mevcut olmayabilir. Veritabanı şemasını oluşturmak ve Prisma Client'ı senkronize etmek için:
+```bash
+npx prisma db push
+```
+*(Bu komut `dev.db` adında yerel bir SQLite veritabanı oluşturacaktır.)*
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Geliştirme Sunucusunu Başlatın
+Veritabanı hazır olduktan sonra uygulamayı çalıştırın:
+```bash
+npm run dev
+```
+Uygulama `http://localhost:3000` adresinde ayağa kalkacaktır.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 4. Örnek Ürünleri Veritabanına Yükleyin (Seed)
+Veritabanı şu an boş olduğu için katalogda ürün göremeyeceksiniz. Örnek ürünleri yüklemek için, **sunucu çalışırken** yeni bir terminal açıp aşağıdaki komutu çalıştırın (veya tarayıcınızda gizli sekmeden bu adrese bir POST/GET isteği atın):
+```bash
+curl -X POST http://localhost:3000/api/db/seed-products
+```
+*(Bu işlem tamamlandıktan sonra anasayfada ve katalogda ürünleri görebilirsiniz.)*
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 🧪 Test İşlemleri ve Kullanım Kılavuzu
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 💳 Ödeme Testi (Sanal POS)
+Ödeme sayfasında gerçek bir ödeme geçidi gibi davranan bir State Machine bulunur. İşlemleri test etmek için aşağıdaki kredi kartı numaralarını kullanabilirsiniz (AA/YY ve CVC değerlerine rastgele rakamlar girebilirsiniz):
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Başarılı Çekim:** `4242 4242 4242 4242`
+- **Yetersiz Bakiye Hatası:** `4000 0000 0000 0000`
+- **Kart Reddedildi Hatası:** `4111 0000 0000 0000`
 
-## Deploy on Vercel
+Başarılı ödemeler sonrasında `npx prisma studio` komutuyla veritabanına bakarak `Order` tablosuna kaydın düştüğünü ve alınan `Sku` stokunun otomatik azaldığını doğrulayabilirsiniz.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 🔐 Kimlik Doğrulama Testi
+Menüden **Giriş** sayfasına giderek herhangi bir şifre olmadan e-posta ve isimle, istediğiniz rolde (`ADMIN`, `SELLER`, `USER`) giriş yapabilirsiniz. Giriş yaptıktan sonra sistem size güvenli bir `HttpOnly` Cookie atayacaktır. Çıkış yapana kadar oturumunuz sunucu tarafından güvenle saklanır.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 🛠️ Teknolojiler
+- **Framework:** Next.js (App Router, Server Actions, API Routes)
+- **Veritabanı:** Prisma ORM & SQLite (`better-sqlite3`)
+- **Stil:** Tailwind CSS v4
+- **Auth:** `jose` (JWT)
+- **Ikonlar ve Bileşenler:** Radix UI / Lucide (Temsili entegrasyonlar)

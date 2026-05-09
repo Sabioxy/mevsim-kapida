@@ -28,10 +28,10 @@ export function PlanCard({
       <Card
         className={cn(
           "overflow-hidden transition-colors",
-          selected ? "border-neutral-900" : "hover:bg-neutral-50",
+          selected ? "border-emerald-900" : "hover:bg-emerald-50",
         )}
       >
-        <div className="relative aspect-[4/3] bg-neutral-50">
+        <div className="relative aspect-[4/3] bg-emerald-50">
           <Image
             src={plan.imageUrl}
             alt={plan.title}
@@ -43,20 +43,20 @@ export function PlanCard({
         <CardContent className="pt-4">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <div className="text-sm font-semibold text-neutral-900">{plan.title}</div>
-              <div className="mt-1 text-xs text-neutral-600">{plan.description}</div>
+              <div className="text-sm font-semibold text-emerald-900">{plan.title}</div>
+              <div className="mt-1 text-xs text-emerald-600">{plan.description}</div>
             </div>
             <div
               className={cn(
                 "mt-0.5 h-4 w-4 rounded-full border",
-                selected ? "border-neutral-900 bg-neutral-900" : "border-neutral-300",
+                selected ? "border-emerald-900 bg-emerald-900" : "border-emerald-300",
               )}
             />
           </div>
 
           <div className="mt-3 grid gap-1">
             {plan.highlights.map((h) => (
-              <div key={h} className="text-xs text-neutral-700">
+              <div key={h} className="text-xs text-emerald-700">
                 • {h}
               </div>
             ))}

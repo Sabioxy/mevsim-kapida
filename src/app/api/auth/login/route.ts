@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { createSession } from "@/lib/auth-server";
 
 type UserRole = "ADMIN" | "USER" | "SELLER";
 
@@ -37,6 +38,14 @@ export async function POST(request: Request) {
       city: body.city?.trim() || null,
       shopName: body.shopName?.trim() || null,
     },
+  });
+
+  // Create HttpOnly Cookie session
+  await createSession({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role as UserRole,
   });
 
   return Response.json({ user });

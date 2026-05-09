@@ -8,9 +8,9 @@ export function SectionTitle({
   return (
     <div className="flex items-end justify-between gap-4">
       <div>
-        <h2 className="text-lg font-semibold text-neutral-900 sm:text-xl">{title}</h2>
+        <h2 className="text-lg font-semibold text-emerald-950 sm:text-xl">{title}</h2>
         {subtitle ? (
-          <p className="mt-1 text-sm text-neutral-600">{subtitle}</p>
+          <p className="mt-1 text-sm text-emerald-800/80">{subtitle}</p>
         ) : null}
       </div>
     </div>

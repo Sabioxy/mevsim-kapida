@@ -39,14 +39,23 @@ export default function CheckoutPage() {
     setIsFirstOrder,
   } = useCart();
 
-  const [address, setAddress] = React.useState<Address>({
+  const [address, setAddress] = React.useState<Address & { email: string }>({
     fullName: "",
     phone: "",
     city: "",
     district: "",
     addressLine: "",
+    email: "",
   });
   const [delivery, setDelivery] = React.useState<DeliveryMethod>("STANDARD");
+
+  const [paymentDetails, setPaymentDetails] = React.useState({
+    cardNumber: "",
+    expiryMonth: "",
+    expiryYear: "",
+    cvc: "",
+    cardHolderName: "",
+  });
 
   const [payment, setPayment] = React.useState<PaymentState>({ status: "INIT" });
   const [priceFreeze, setPriceFreeze] = React.useState<PriceFreezeSnapshot | null>(null);
@@ -64,7 +73,7 @@ export default function CheckoutPage() {
       .catch(() => setLoadingProducts(false));
   }, []);
 
-  const itemsSubtotal = React.useMemo(() => calcCartItemsSubtotal(cart), [cart]);
+  const itemsSubtotal = React.useMemo(() => calcCartItemsSubtotal(cart, products), [cart, products]);
   const { discountsTotal, shippingFeeFinal } = React.useMemo(
     () =>
       computeDiscounts({
@@ -96,8 +105,8 @@ export default function CheckoutPage() {
     return (
       <Container className="py-8">
         <SectionTitle title="Ödeme" subtitle="Adres, teslimat ve güvenli ödeme" />
-        <div className="mt-6 flex h-40 items-center justify-center rounded-2xl border border-neutral-200 bg-white">
-          <div className="text-sm font-semibold text-neutral-500">Yükleniyor...</div>
+        <div className="mt-6 flex h-40 items-center justify-center rounded-2xl border border-emerald-100 bg-emerald-50/30">
+          <div className="text-sm font-semibold text-emerald-800">Yükleniyor...</div>
         </div>
       </Container>
     );
@@ -138,28 +147,46 @@ export default function CheckoutPage() {
     setPayment({ status: "PENDING", paymentRequestId, startedAt: Date.now() });
 
     try {
-      const result = await processPayment(paymentRequestId);
+      // API call instead of mock processPayment
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cart,
+          address: `${address.district}, ${address.addressLine}`,
+          city: address.city,
+          customerName: address.fullName,
+          customerEmail: address.email || "guest@example.com",
+          payment: paymentDetails,
+        }),
+      });
+
       if (cancelledRef.current.has(paymentRequestId)) {
         return;
       }
-      if (result !== "SUCCESS") {
+
+      if (!response.ok) {
+        const errorData = await response.json();
         setPayment({
           status: "FAILED",
           paymentRequestId,
-          message: "Ödeme başarısız oldu. Lütfen tekrar deneyin.",
+          message: errorData.message || "Sipariş oluşturulamadı. Lütfen tekrar deneyin.",
         });
         return;
       }
 
+      const data = await response.json();
+
       const snapshot = freezePrices({
         cart,
+        products,
         promotions,
         isFirstOrder,
         shippingFee: SHIPPING_FEE_DEFAULT,
       });
       setPriceFreeze(snapshot);
 
-      const orderId = makeId("order");
+      const orderId = data.order.id;
       setPayment({
         status: "SUCCESS",
         orderId,
@@ -179,9 +206,9 @@ export default function CheckoutPage() {
       <SectionTitle title="Ödeme" subtitle="Adres, teslimat ve güvenli ödeme" />
 
       {cart.lines.length === 0 && payment.status !== "SUCCESS" ? (
-        <div className="mt-6 rounded-2xl border border-neutral-200 bg-white p-6">
-          <div className="text-sm font-semibold text-neutral-900">Sepetin boş</div>
-          <div className="mt-1 text-sm text-neutral-600">
+        <div className="mt-6 rounded-2xl border border-emerald-100 bg-emerald-50/30 p-6">
+          <div className="text-sm font-semibold text-emerald-950">Sepetin boş</div>
+          <div className="mt-1 text-sm text-emerald-800/80">
             Ödeme yapabilmek için sepete ürün eklemelisin.
           </div>
           <div className="mt-5">
@@ -201,15 +228,15 @@ export default function CheckoutPage() {
 
             <Card>
               <CardHeader>
-                <div className="text-sm font-semibold text-neutral-900">1) Adres Bilgisi</div>
-                <div className="mt-1 text-xs text-neutral-600">
+                <div className="text-sm font-semibold text-emerald-900">1) Adres Bilgisi</div>
+                <div className="mt-1 text-xs text-emerald-600">
                   Sipariş oluşturulurken teslimat için gereklidir.
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="sm:col-span-2">
-                    <label className="text-xs font-semibold text-neutral-700">Ad Soyad</label>
+                    <label className="text-xs font-semibold text-emerald-700">Ad Soyad</label>
                     <Input
                       value={address.fullName}
                       onChange={(e) => setAddress((p) => ({ ...p, fullName: e.target.value }))}
@@ -217,15 +244,24 @@ export default function CheckoutPage() {
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-neutral-700">Telefon</label>
+                    <label className="text-xs font-semibold text-emerald-700">Telefon</label>
                     <Input
                       value={address.phone}
                       onChange={(e) => setAddress((p) => ({ ...p, phone: e.target.value }))}
                       placeholder="05xx xxx xx xx"
                     />
                   </div>
+                  <div className="sm:col-span-2">
+                    <label className="text-xs font-semibold text-emerald-700">E-posta</label>
+                    <Input
+                      type="email"
+                      value={address.email}
+                      onChange={(e) => setAddress((p) => ({ ...p, email: e.target.value }))}
+                      placeholder="ornek@site.com"
+                    />
+                  </div>
                   <div>
-                    <label className="text-xs font-semibold text-neutral-700">Şehir</label>
+                    <label className="text-xs font-semibold text-emerald-700">Şehir</label>
                     <Input
                       value={address.city}
                       onChange={(e) => setAddress((p) => ({ ...p, city: e.target.value }))}
@@ -233,7 +269,7 @@ export default function CheckoutPage() {
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-semibold text-neutral-700">İlçe</label>
+                    <label className="text-xs font-semibold text-emerald-700">İlçe</label>
                     <Input
                       value={address.district}
                       onChange={(e) => setAddress((p) => ({ ...p, district: e.target.value }))}
@@ -241,7 +277,7 @@ export default function CheckoutPage() {
                     />
                   </div>
                   <div className="sm:col-span-2">
-                    <label className="text-xs font-semibold text-neutral-700">Adres</label>
+                    <label className="text-xs font-semibold text-emerald-700">Adres</label>
                     <Input
                       value={address.addressLine}
                       onChange={(e) =>
@@ -256,8 +292,8 @@ export default function CheckoutPage() {
 
             <Card>
               <CardHeader>
-                <div className="text-sm font-semibold text-neutral-900">2) Teslimat Seçimi</div>
-                <div className="mt-1 text-xs text-neutral-600">
+                <div className="text-sm font-semibold text-emerald-900">2) Teslimat Seçimi</div>
+                <div className="mt-1 text-xs text-emerald-600">
                   Standart veya planlı teslimat.
                 </div>
               </CardHeader>
@@ -268,24 +304,24 @@ export default function CheckoutPage() {
                     onClick={() => setDelivery("STANDARD")}
                     className={`rounded-xl border p-4 text-left text-sm transition-colors ${
                       delivery === "STANDARD"
-                        ? "border-neutral-900 bg-neutral-50"
-                        : "border-neutral-200 bg-white hover:bg-neutral-50"
+                        ? "border-emerald-600 bg-emerald-50/50 shadow-sm shadow-emerald-100"
+                        : "border-emerald-100 bg-white hover:bg-emerald-50/30"
                     }`}
                   >
-                    <div className="font-semibold text-neutral-900">Standart</div>
-                    <div className="mt-1 text-xs text-neutral-600">1-2 iş günü</div>
+                    <div className="font-semibold text-emerald-950">Standart</div>
+                    <div className="mt-1 text-xs text-emerald-800/80">1-2 iş günü</div>
                   </button>
                   <button
                     type="button"
                     onClick={() => setDelivery("SCHEDULED")}
                     className={`rounded-xl border p-4 text-left text-sm transition-colors ${
                       delivery === "SCHEDULED"
-                        ? "border-neutral-900 bg-neutral-50"
-                        : "border-neutral-200 bg-white hover:bg-neutral-50"
+                        ? "border-emerald-600 bg-emerald-50/50 shadow-sm shadow-emerald-100"
+                        : "border-emerald-100 bg-white hover:bg-emerald-50/30"
                     }`}
                   >
-                    <div className="font-semibold text-neutral-900">Planlı</div>
-                    <div className="mt-1 text-xs text-neutral-600">Teslimat günü seçimi (MVP)</div>
+                    <div className="font-semibold text-emerald-950">Planlı</div>
+                    <div className="mt-1 text-xs text-emerald-800/80">Teslimat günü seçimi (MVP)</div>
                   </button>
                 </div>
               </CardContent>
@@ -293,16 +329,71 @@ export default function CheckoutPage() {
 
             <Card>
               <CardHeader>
-                <div className="text-sm font-semibold text-neutral-900">3) Ödeme Durumu</div>
-                <div className="mt-1 text-xs text-neutral-600">
+                <div className="text-sm font-semibold text-emerald-900">3) Ödeme Bilgileri</div>
+                <div className="mt-1 text-xs text-emerald-600">
+                  Kart bilgilerini girin (Test için: 4242 4242 4242 4242)
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="sm:col-span-2">
+                    <label className="text-xs font-semibold text-emerald-700">Kart Üzerindeki İsim</label>
+                    <Input
+                      value={paymentDetails.cardHolderName}
+                      onChange={(e) => setPaymentDetails((p) => ({ ...p, cardHolderName: e.target.value }))}
+                      placeholder="Örn: Ayşe Yılmaz"
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="text-xs font-semibold text-emerald-700">Kart Numarası</label>
+                    <Input
+                      value={paymentDetails.cardNumber}
+                      onChange={(e) => setPaymentDetails((p) => ({ ...p, cardNumber: e.target.value }))}
+                      placeholder="0000 0000 0000 0000"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-emerald-700">Son Kullanma (AA/YY)</label>
+                    <div className="flex gap-2">
+                      <Input
+                        value={paymentDetails.expiryMonth}
+                        onChange={(e) => setPaymentDetails((p) => ({ ...p, expiryMonth: e.target.value }))}
+                        placeholder="AA"
+                        maxLength={2}
+                      />
+                      <Input
+                        value={paymentDetails.expiryYear}
+                        onChange={(e) => setPaymentDetails((p) => ({ ...p, expiryYear: e.target.value }))}
+                        placeholder="YY"
+                        maxLength={2}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-emerald-700">CVC</label>
+                    <Input
+                      value={paymentDetails.cvc}
+                      onChange={(e) => setPaymentDetails((p) => ({ ...p, cvc: e.target.value }))}
+                      placeholder="123"
+                      maxLength={3}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <div className="text-sm font-semibold text-emerald-900">4) Ödeme Durumu</div>
+                <div className="mt-1 text-xs text-emerald-600">
                   State machine: INIT → PENDING → SUCCESS/FAILED/CANCELLED
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="text-sm">
-                    <span className="text-neutral-600">Durum: </span>
-                    <span className="font-semibold text-neutral-900">{payment.status}</span>
+                    <span className="text-emerald-600">Durum: </span>
+                    <span className="font-semibold text-emerald-900">{payment.status}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     {payment.status === "PENDING" ? (
@@ -341,13 +432,13 @@ export default function CheckoutPage() {
                 ) : null}
 
                 {payment.status === "PENDING" ? (
-                  <div className="mt-3 text-xs text-neutral-600">
+                  <div className="mt-3 text-xs text-emerald-600">
                     Idempotency: aynı `payment_request_id` yeniden işlenmez. Buton disable.
                   </div>
                 ) : null}
 
                 {payment.status === "CANCELLED" ? (
-                  <div className="mt-3 rounded-xl border border-neutral-200 bg-neutral-50 p-3 text-sm text-neutral-800">
+                  <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
                     Ödeme iptal edildi.
                   </div>
                 ) : null}
@@ -357,13 +448,13 @@ export default function CheckoutPage() {
             {priceFreeze ? (
               <Card>
                 <CardHeader>
-                  <div className="text-sm font-semibold text-neutral-900">Price Freeze</div>
-                  <div className="mt-1 text-xs text-neutral-600">
+                  <div className="text-sm font-semibold text-emerald-900">Price Freeze</div>
+                  <div className="mt-1 text-xs text-emerald-600">
                     Sipariş onayında hesaplanan tutarlar sabitlendi.
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-xs text-neutral-700">
+                  <div className="text-xs text-emerald-700">
                     Frozen At: {new Date(priceFreeze.frozenAt).toLocaleString("tr-TR")}
                   </div>
                   <div className="mt-3">

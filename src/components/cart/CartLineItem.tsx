@@ -33,10 +33,10 @@ export function CartLineItem({
   const outOfStock = sku.stock <= 0;
 
   return (
-    <div className="flex gap-3 rounded-xl border border-neutral-200 p-3">
+    <div className="flex gap-3 rounded-xl border border-emerald-100 p-3 shadow-sm shadow-emerald-50/50">
       <Link
         href={`/product/${product.slug}`}
-        className="relative h-20 w-20 overflow-hidden rounded-lg bg-neutral-50"
+        className="relative h-20 w-20 overflow-hidden rounded-lg bg-emerald-50/50"
       >
         <Image src={product.imageUrl} alt={product.title} fill className="object-cover" />
       </Link>
@@ -44,8 +44,8 @@ export function CartLineItem({
       <div className="flex flex-1 flex-col gap-1">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <div className="text-sm font-semibold text-neutral-900">{product.title}</div>
-            <div className="text-xs text-neutral-600">Varyant: {sku.label}</div>
+            <div className="text-sm font-semibold text-emerald-950">{product.title}</div>
+            <div className="text-xs text-emerald-700">Varyant: {sku.label}</div>
             {outOfStock ? (
               <div className="mt-1 text-xs font-semibold text-rose-600">
                 Tükendi — satışa kapalı
@@ -53,7 +53,7 @@ export function CartLineItem({
             ) : null}
           </div>
 
-          <div className="text-sm font-semibold text-neutral-900">{formatTRY(unitCustomer)}</div>
+          <div className="text-sm font-semibold text-emerald-950">{formatTRY(unitCustomer)}</div>
         </div>
 
         <div className="mt-2 flex items-center justify-between gap-2">
@@ -65,7 +65,7 @@ export function CartLineItem({
               className="h-9 w-20 text-center"
               disabled={outOfStock}
             />
-            <div className="text-xs text-neutral-600">adet</div>
+            <div className="text-xs text-emerald-700">adet</div>
           </div>
 
           <Button type="button" variant="ghost" onClick={() => onRemove(lineId)}>

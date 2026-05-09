@@ -40,7 +40,7 @@ export default function CartPage() {
       .catch(() => setLoadingProducts(false));
   }, []);
 
-  const itemsSubtotal = React.useMemo(() => calcCartItemsSubtotal(cart), [cart]);
+  const itemsSubtotal = React.useMemo(() => calcCartItemsSubtotal(cart, products), [cart, products]);
   const { discountsTotal, shippingFeeFinal } = React.useMemo(
     () =>
       computeDiscounts({
@@ -71,8 +71,8 @@ export default function CartPage() {
     return (
       <Container className="py-8">
         <SectionTitle title="Sepet" subtitle="Aynı anda sadece 1 aktif sepet" />
-        <div className="mt-6 flex h-40 items-center justify-center rounded-2xl border border-neutral-200 bg-white">
-          <div className="text-sm font-semibold text-neutral-500">Yükleniyor...</div>
+        <div className="mt-6 flex h-40 items-center justify-center rounded-2xl border border-emerald-100 bg-emerald-50/30">
+          <div className="text-sm font-semibold text-emerald-800">Yükleniyor...</div>
         </div>
       </Container>
     );
@@ -83,9 +83,9 @@ export default function CartPage() {
       <SectionTitle title="Sepet" subtitle="Aynı anda sadece 1 aktif sepet" />
 
       {cart.lines.length === 0 ? (
-        <div className="mt-6 rounded-2xl border border-neutral-200 bg-white p-6">
-          <div className="text-sm font-semibold text-neutral-900">Sepetin boş</div>
-          <div className="mt-1 text-sm text-neutral-600">
+        <div className="mt-6 rounded-2xl border border-emerald-100 bg-emerald-50/30 p-6">
+          <div className="text-sm font-semibold text-emerald-950">Sepetin boş</div>
+          <div className="mt-1 text-sm text-emerald-800/80">
             Ürünleri keşfedip sepete ekleyebilirsin.
           </div>
           <div className="mt-5">

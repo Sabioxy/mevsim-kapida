@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Container } from "@/components/ui/Container";
 import { Input } from "@/components/ui/Input";
-import { clearAuthSession, writeAuthSession, type AuthRole } from "@/lib/auth";
+import { type AuthRole } from "@/lib/auth";
 
 const roleNext: Record<AuthRole, string> = {
   ADMIN: "/admin",
@@ -14,7 +14,9 @@ const roleNext: Record<AuthRole, string> = {
   USER: "/",
 };
 
-export default function LoginPage() {
+import { Suspense } from "react";
+
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = searchParams.get("next");
@@ -42,7 +44,7 @@ export default function LoginPage() {
         throw new Error(data.message ?? "Giriş yapılamadı");
       }
 
-      writeAuthSession(data.user);
+      // No need to write local session anymore, HttpOnly cookie handles it
       const target = next && next.startsWith("/") ? next : roleNext[role];
       router.replace(target);
     } catch (authError) {
@@ -53,41 +55,49 @@ export default function LoginPage() {
   };
 
   React.useEffect(() => {
-    clearAuthSession();
+    fetch("/api/auth/logout", { method: "POST" });
   }, []);
 
   return (
+    <Card className="w-full max-w-md">
+      <CardHeader>
+        <div className="text-lg font-semibold text-emerald-900">Giriş Yap</div>
+        <div className="mt-1 text-sm text-emerald-600">
+          Admin veya satıcı paneline erişmek için kullanıcı kaydıyla oturum açın.
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div>
+          <label className="text-xs font-semibold text-emerald-700">Ad Soyad</label>
+          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Örn. Ayşe Yılmaz" />
+        </div>
+        <div>
+          <label className="text-xs font-semibold text-emerald-700">E-posta</label>
+          <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="ornek@site.com" />
+        </div>
+        <div>
+          <label className="text-xs font-semibold text-emerald-700">Rol</label>
+          <select value={role} onChange={(e) => setRole(e.target.value as AuthRole)} className="h-10 w-full rounded-md border border-emerald-200 bg-white px-3 text-sm">
+            <option value="ADMIN">Admin</option>
+            <option value="SELLER">Satıcı</option>
+            <option value="USER">Kullanıcı</option>
+          </select>
+        </div>
+        <Button className="w-full" disabled={loading} onClick={login}>
+          {loading ? "Giriş yapılıyor..." : "Giriş Yap"}
+        </Button>
+        {error ? <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">{error}</div> : null}
+      </CardContent>
+    </Card>
+  );
+}
+
+export default function LoginPage() {
+  return (
     <Container className="flex min-h-[calc(100vh-56px)] items-center justify-center py-10">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <div className="text-lg font-semibold text-neutral-900">Giriş Yap</div>
-          <div className="mt-1 text-sm text-neutral-600">
-            Admin veya satıcı paneline erişmek için kullanıcı kaydıyla oturum açın.
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div>
-            <label className="text-xs font-semibold text-neutral-700">Ad Soyad</label>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Örn. Ayşe Yılmaz" />
-          </div>
-          <div>
-            <label className="text-xs font-semibold text-neutral-700">E-posta</label>
-            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="ornek@site.com" />
-          </div>
-          <div>
-            <label className="text-xs font-semibold text-neutral-700">Rol</label>
-            <select value={role} onChange={(e) => setRole(e.target.value as AuthRole)} className="h-10 w-full rounded-md border border-neutral-200 bg-white px-3 text-sm">
-              <option value="ADMIN">Admin</option>
-              <option value="SELLER">Satıcı</option>
-              <option value="USER">Kullanıcı</option>
-            </select>
-          </div>
-          <Button className="w-full" disabled={loading} onClick={login}>
-            {loading ? "Giriş yapılıyor..." : "Giriş Yap"}
-          </Button>
-          {error ? <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">{error}</div> : null}
-        </CardContent>
-      </Card>
+      <Suspense fallback={<div>Yükleniyor...</div>}>
+        <LoginForm />
+      </Suspense>
     </Container>
   );
 }

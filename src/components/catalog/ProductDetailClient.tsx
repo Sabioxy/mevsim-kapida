@@ -31,7 +31,7 @@ export function ProductDetailClient({ product }: { product: Product }) {
 
   return (
     <div className="grid gap-6 lg:grid-cols-2">
-      <div className="overflow-hidden rounded-2xl border border-neutral-200 bg-neutral-50">
+      <div className="overflow-hidden rounded-2xl border border-emerald-200 bg-emerald-50">
         <div className="relative aspect-[4/3]">
           <Image
             src={product.imageUrl}
@@ -48,24 +48,24 @@ export function ProductDetailClient({ product }: { product: Product }) {
       </div>
 
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 sm:text-3xl">
+        <h1 className="text-2xl font-semibold tracking-tight text-emerald-900 sm:text-3xl">
           {product.title}
         </h1>
         {product.subtitle ? (
-          <p className="mt-2 text-sm text-neutral-600">{product.subtitle}</p>
+          <p className="mt-2 text-sm text-emerald-600">{product.subtitle}</p>
         ) : null}
 
-        <div className="mt-3 text-sm text-neutral-700">
+        <div className="mt-3 text-sm text-emerald-700">
           <span className="font-semibold">Üretici:</span> {product.producer.name} •{" "}
           {product.producer.city}
         </div>
 
-        <p className="mt-4 text-sm leading-6 text-neutral-700">
+        <p className="mt-4 text-sm leading-6 text-emerald-700">
           {product.description}
         </p>
 
         <div className="mt-6">
-          <div className="text-sm font-semibold text-neutral-900">Gramaj / Varyant</div>
+          <div className="text-sm font-semibold text-emerald-900">Gramaj / Varyant</div>
           <div className="mt-2">
             <VariantPicker
               variants={product.variants}
@@ -77,8 +77,8 @@ export function ProductDetailClient({ product }: { product: Product }) {
 
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <div className="text-xs font-semibold text-neutral-600">Müşteri Fiyatı</div>
-            <div className="text-xl font-semibold text-neutral-900">
+            <div className="text-xs font-semibold text-emerald-600">Müşteri Fiyatı</div>
+            <div className="text-xl font-semibold text-emerald-900">
               {unitCustomer ? formatTRY(unitCustomer) : "-"}
             </div>
           </div>
@@ -107,25 +107,25 @@ export function ProductDetailClient({ product }: { product: Product }) {
           <div className="mt-6">
             <Card>
               <CardContent className="pt-4">
-                <div className="text-sm font-semibold text-neutral-900">Fiyat Şeffaflığı</div>
+                <div className="text-sm font-semibold text-emerald-900">Fiyat Şeffaflığı</div>
                 <div className="mt-2 grid gap-2 text-sm">
                   <div className="flex items-center justify-between">
-                    <span className="text-neutral-600">Üretici baz fiyat</span>
-                    <span className="font-medium text-neutral-900">
+                    <span className="text-emerald-600">Üretici baz fiyat</span>
+                    <span className="font-medium text-emerald-900">
                       {formatTRY(selectedSku.producerBasePrice)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-neutral-600">Platform komisyonu</span>
-                    <span className="font-medium text-neutral-900">%{COMMISSION_RATE * 100}</span>
+                    <span className="text-emerald-600">Platform komisyonu</span>
+                    <span className="font-medium text-emerald-900">%{COMMISSION_RATE * 100}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-neutral-600">Müşteri fiyatı</span>
-                    <span className="font-semibold text-neutral-900">
+                    <span className="text-emerald-600">Müşteri fiyatı</span>
+                    <span className="font-semibold text-emerald-900">
                       {unitCustomer ? formatTRY(unitCustomer) : "-"}
                     </span>
                   </div>
-                  <div className="mt-1 text-xs text-neutral-600">
+                  <div className="mt-1 text-xs text-emerald-600">
                     Üretici kazancı (MVP): {formatTRY(selectedSku.producerBasePrice)}
                   </div>
                 </div>

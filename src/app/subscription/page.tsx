@@ -75,8 +75,8 @@ export default function SubscriptionPage() {
         <div className="space-y-4">
           <Card>
             <CardHeader>
-              <div className="text-sm font-semibold text-neutral-900">Periyot Seçimi</div>
-              <div className="mt-1 text-xs text-neutral-600">
+              <div className="text-sm font-semibold text-emerald-900">Periyot Seçimi</div>
+              <div className="mt-1 text-xs text-emerald-600">
                 Haftalık veya aylık teslimat planı.
               </div>
             </CardHeader>
@@ -87,35 +87,35 @@ export default function SubscriptionPage() {
                   onClick={() => setPeriod("WEEKLY")}
                   className={`rounded-xl border p-3 text-left text-sm transition-colors ${
                     period === "WEEKLY"
-                      ? "border-neutral-900 bg-neutral-50"
-                      : "border-neutral-200 bg-white hover:bg-neutral-50"
+                      ? "border-emerald-900 bg-emerald-50"
+                      : "border-emerald-200 bg-white hover:bg-emerald-50"
                   }`}
                 >
-                  <div className="font-semibold text-neutral-900">Haftalık</div>
-                  <div className="mt-1 text-xs text-neutral-600">Her hafta 1 gönderim</div>
+                  <div className="font-semibold text-emerald-900">Haftalık</div>
+                  <div className="mt-1 text-xs text-emerald-600">Her hafta 1 gönderim</div>
                 </button>
                 <button
                   type="button"
                   onClick={() => setPeriod("MONTHLY")}
                   className={`rounded-xl border p-3 text-left text-sm transition-colors ${
                     period === "MONTHLY"
-                      ? "border-neutral-900 bg-neutral-50"
-                      : "border-neutral-200 bg-white hover:bg-neutral-50"
+                      ? "border-emerald-900 bg-emerald-50"
+                      : "border-emerald-200 bg-white hover:bg-emerald-50"
                   }`}
                 >
-                  <div className="font-semibold text-neutral-900">Aylık</div>
-                  <div className="mt-1 text-xs text-neutral-600">Ayda 4 gönderim (MVP)</div>
+                  <div className="font-semibold text-emerald-900">Aylık</div>
+                  <div className="mt-1 text-xs text-emerald-600">Ayda 4 gönderim (MVP)</div>
                 </button>
               </div>
 
-              <div className="mt-4 rounded-xl border border-neutral-200 bg-white p-3">
-                <div className="text-xs font-semibold text-neutral-600">Seçim</div>
-                <div className="mt-1 text-sm font-semibold text-neutral-900">
+              <div className="mt-4 rounded-xl border border-emerald-200 bg-white p-3">
+                <div className="text-xs font-semibold text-emerald-600">Seçim</div>
+                <div className="mt-1 text-sm font-semibold text-emerald-900">
                   {selectedPlan.title} • {period === "WEEKLY" ? "Haftalık" : "Aylık"}
                 </div>
                 <div className="mt-2 flex items-center justify-between text-sm">
-                  <span className="text-neutral-600">Tutar</span>
-                  <span className="font-semibold text-neutral-900">{formatTRY(TRY(price))}</span>
+                  <span className="text-emerald-600">Tutar</span>
+                  <span className="font-semibold text-emerald-900">{formatTRY(TRY(price))}</span>
                 </div>
               </div>
 
@@ -139,13 +139,13 @@ export default function SubscriptionPage() {
 
           <Card>
             <CardHeader>
-              <div className="text-sm font-semibold text-neutral-900">Not</div>
-              <div className="mt-1 text-xs text-neutral-600">
+              <div className="text-sm font-semibold text-emerald-900">Not</div>
+              <div className="mt-1 text-xs text-emerald-600">
                 Bu sayfa satın alma arayüzü MVP’sidir.
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-sm text-neutral-700">
+              <div className="text-sm text-emerald-700">
                 Ödeme ve adres akışı, marketplace checkout akışıyla birleştirilebilir.
               </div>
             </CardContent>

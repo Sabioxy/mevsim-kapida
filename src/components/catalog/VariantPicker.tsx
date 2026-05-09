@@ -27,17 +27,17 @@ export function VariantPicker({
             className={cn(
               "rounded-lg border px-3 py-2 text-left text-sm transition-colors",
               selected
-                ? "border-neutral-900 bg-neutral-50"
-                : "border-neutral-200 bg-white hover:bg-neutral-50",
+                ? "border-emerald-900 bg-emerald-50"
+                : "border-emerald-200 bg-white hover:bg-emerald-50",
               disabled && "opacity-50",
             )}
           >
             <div className="flex items-center justify-between gap-2">
-              <div className="font-medium text-neutral-900">{v.label}</div>
+              <div className="font-medium text-emerald-900">{v.label}</div>
               {disabled ? (
                 <span className="text-xs font-semibold text-rose-600">Tükendi</span>
               ) : (
-                <span className="text-xs text-neutral-600">Stok: {v.stock}</span>
+                <span className="text-xs text-emerald-600">Stok: {v.stock}</span>
               )}
             </div>
           </button>

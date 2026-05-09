@@ -162,30 +162,30 @@ export default function AdminPage() {
       <div className="mt-6 grid gap-6 lg:grid-cols-[360px_1fr]">
         <Card>
           <CardHeader>
-            <div className="text-sm font-semibold text-neutral-900">Yeni Kayıt</div>
-            <div className="mt-1 text-xs text-neutral-600">
+            <div className="text-sm font-semibold text-emerald-900">Yeni Kayıt</div>
+            <div className="mt-1 text-xs text-emerald-600">
               Tek formdan tüm rol türleri oluşturulur.
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
             <div>
-              <label className="text-xs font-semibold text-neutral-700">Ad Soyad</label>
+              <label className="text-xs font-semibold text-emerald-700">Ad Soyad</label>
               <Input value={name} onChange={(e) => setName(e.target.value)} />
             </div>
             <div>
-              <label className="text-xs font-semibold text-neutral-700">E-posta</label>
+              <label className="text-xs font-semibold text-emerald-700">E-posta</label>
               <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
             <div>
-              <label className="text-xs font-semibold text-neutral-700">Şehir</label>
+              <label className="text-xs font-semibold text-emerald-700">Şehir</label>
               <Input value={city} onChange={(e) => setCity(e.target.value)} />
             </div>
             <div>
-              <label className="text-xs font-semibold text-neutral-700">Rol</label>
+              <label className="text-xs font-semibold text-emerald-700">Rol</label>
               <select
                 value={role}
                 onChange={(e) => setRole(e.target.value as Role)}
-                className="h-10 w-full rounded-md border border-neutral-200 bg-white px-3 text-sm"
+                className="h-10 w-full rounded-md border border-emerald-200 bg-white px-3 text-sm"
               >
                 <option value="USER">Kullanıcı</option>
                 <option value="SELLER">Satıcı</option>
@@ -194,7 +194,7 @@ export default function AdminPage() {
             </div>
             {role === "SELLER" ? (
               <div>
-                <label className="text-xs font-semibold text-neutral-700">Mağaza Adı</label>
+                <label className="text-xs font-semibold text-emerald-700">Mağaza Adı</label>
                 <Input value={shopName} onChange={(e) => setShopName(e.target.value)} />
               </div>
             ) : null}
@@ -213,47 +213,47 @@ export default function AdminPage() {
           <div className="grid gap-3 sm:grid-cols-3">
             <Card>
               <CardContent className="p-4">
-                <div className="text-xs font-semibold text-neutral-600">Admin</div>
-                <div className="mt-1 text-2xl font-semibold text-neutral-900">{counts.admin}</div>
+                <div className="text-xs font-semibold text-emerald-600">Admin</div>
+                <div className="mt-1 text-2xl font-semibold text-emerald-900">{counts.admin}</div>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4">
-                <div className="text-xs font-semibold text-neutral-600">Kullanıcı</div>
-                <div className="mt-1 text-2xl font-semibold text-neutral-900">{counts.user}</div>
+                <div className="text-xs font-semibold text-emerald-600">Kullanıcı</div>
+                <div className="mt-1 text-2xl font-semibold text-emerald-900">{counts.user}</div>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4">
-                <div className="text-xs font-semibold text-neutral-600">Satıcı</div>
-                <div className="mt-1 text-2xl font-semibold text-neutral-900">{counts.seller}</div>
+                <div className="text-xs font-semibold text-emerald-600">Satıcı</div>
+                <div className="mt-1 text-2xl font-semibold text-emerald-900">{counts.seller}</div>
               </CardContent>
             </Card>
           </div>
 
           <Card>
             <CardHeader>
-              <div className="text-sm font-semibold text-neutral-900">Kayıtlı Hesaplar</div>
-              <div className="mt-1 text-xs text-neutral-600">
+              <div className="text-sm font-semibold text-emerald-900">Kayıtlı Hesaplar</div>
+              <div className="mt-1 text-xs text-emerald-600">
                 SQLite üzerinden geliyor, sayfa yenilemeden güncellenir.
               </div>
             </CardHeader>
             <CardContent>
               {loading ? (
-                <div className="text-sm text-neutral-600">Yükleniyor...</div>
+                <div className="text-sm text-emerald-600">Yükleniyor...</div>
               ) : users.length === 0 ? (
-                <div className="text-sm text-neutral-600">Henüz kayıt yok.</div>
+                <div className="text-sm text-emerald-600">Henüz kayıt yok.</div>
               ) : (
                 <div className="space-y-3">
                   {users.map((user) => (
                     <div
                       key={user.id}
-                      className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-neutral-200 p-3"
+                      className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-200 p-3"
                     >
                       <div>
-                        <div className="text-sm font-semibold text-neutral-900">{user.name}</div>
-                        <div className="text-xs text-neutral-600">{user.email}</div>
-                        <div className="mt-1 text-xs text-neutral-500">
+                        <div className="text-sm font-semibold text-emerald-900">{user.name}</div>
+                        <div className="text-xs text-emerald-600">{user.email}</div>
+                        <div className="mt-1 text-xs text-emerald-500">
                           {roleLabels[user.role]}
                           {user.city ? ` • ${user.city}` : ""}
                           {user.shopName ? ` • ${user.shopName}` : ""}

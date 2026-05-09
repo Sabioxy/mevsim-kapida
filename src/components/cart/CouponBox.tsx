@@ -36,8 +36,8 @@ export function CouponBox({
   return (
     <Card>
       <CardHeader>
-        <div className="text-sm font-semibold text-neutral-900">Kupon / Kampanya</div>
-        <div className="mt-1 text-xs text-neutral-600">
+        <div className="text-sm font-semibold text-emerald-900">Kupon / Kampanya</div>
+        <div className="mt-1 text-xs text-emerald-600">
           İlk sipariş indirimi, ücretsiz kargo veya yüzdelik indirim.
         </div>
       </CardHeader>
@@ -53,10 +53,10 @@ export function CouponBox({
           </Button>
         </div>
         <div className="mt-2 flex items-center justify-between">
-          <div className="text-xs text-neutral-600">
+          <div className="text-xs text-emerald-600">
             {promotions.length ? "Aktif kampanya: " : ""}
             {promotions.length ? (
-              <span className="font-medium text-neutral-900">
+              <span className="font-medium text-emerald-900">
                 {(() => {
                   const p = promotions[0];
                   if (p.kind === "FREE_SHIPPING") return "Ücretsiz Kargo";
@@ -73,13 +73,13 @@ export function CouponBox({
             <button
               type="button"
               onClick={clear}
-              className="text-xs font-medium text-neutral-700 hover:text-neutral-900"
+              className="text-xs font-medium text-emerald-700 hover:text-emerald-900"
             >
               Temizle
             </button>
           ) : null}
         </div>
-        {message ? <div className="mt-2 text-xs text-neutral-600">{message}</div> : null}
+        {message ? <div className="mt-2 text-xs text-emerald-600">{message}</div> : null}
       </CardContent>
     </Card>
   );
