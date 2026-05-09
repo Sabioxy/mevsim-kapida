@@ -7,6 +7,8 @@ export type AuthSession = {
   name: string;
   email: string;
   role: AuthRole;
+  subscriptionPlan?: string | null;
+  subscriptionStatus?: string | null;
 };
 
 const AUTH_KEY = "mk_auth_session_v1";

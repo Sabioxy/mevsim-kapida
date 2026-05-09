@@ -22,6 +22,7 @@ export default function CartPage() {
     cart,
     updateQty,
     removeLine,
+    clearCart,
     promotions,
     setPromotions,
     isFirstOrder,
@@ -80,7 +81,14 @@ export default function CartPage() {
 
   return (
     <Container className="py-8">
-      <SectionTitle title="Sepet" subtitle="Aynı anda sadece 1 aktif sepet" />
+      <div className="flex items-center justify-between">
+        <SectionTitle title="Sepet" subtitle="Aynı anda sadece 1 aktif sepet" />
+        {cart.lines.length > 0 && (
+          <Button variant="ghost" onClick={clearCart} className="text-rose-600 text-xs">
+            Sepeti Boşalt
+          </Button>
+        )}
+      </div>
 
       {cart.lines.length === 0 ? (
         <div className="mt-6 rounded-2xl border border-emerald-100 bg-emerald-50/30 p-6">

@@ -121,8 +121,20 @@ export default function SubscriptionPage() {
 
               <Button
                 className="mt-4 w-full"
-                onClick={() => {
-                  setStatus("SUCCESS");
+                onClick={async () => {
+                  try {
+                    const res = await fetch("/api/subscription/purchase", {
+                      method: "POST",
+                      body: JSON.stringify({ planId: selectedPlanId }),
+                    });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.message);
+                    setStatus("SUCCESS");
+                    // Redirect to profile after short delay
+                    setTimeout(() => window.location.href = "/profile", 1500);
+                  } catch (err: any) {
+                    alert(err.message || "Hata oluştu");
+                  }
                 }}
               >
                 Aboneliği Başlat
@@ -130,8 +142,7 @@ export default function SubscriptionPage() {
 
               {status === "SUCCESS" ? (
                 <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800">
-                  Abonelik talebin alındı (MVP). Teslimat planı üretici stoklarına göre
-                  oluşturulacak.
+                  Aboneliğiniz başarıyla başlatıldı! Profilinize yönlendiriliyorsunuz...
                 </div>
               ) : null}
             </CardContent>

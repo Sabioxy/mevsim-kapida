@@ -5,10 +5,17 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const category = url.searchParams.get("category");
   const producerId = url.searchParams.get("producerId");
+  const q = url.searchParams.get("q");
 
   const where: any = {};
   if (category) where.category = category;
   if (producerId) where.producerId = Number(producerId);
+  if (q) {
+    where.OR = [
+      { name: { contains: q } },
+      { description: { contains: q } },
+    ];
+  }
 
   const dbProducts = await prisma.product.findMany({
     where,

@@ -101,17 +101,6 @@ export default function CheckoutPage() {
     return !sku || sku.stock <= 0;
   });
 
-  if (loadingProducts) {
-    return (
-      <Container className="py-8">
-        <SectionTitle title="Ödeme" subtitle="Adres, teslimat ve güvenli ödeme" />
-        <div className="mt-6 flex h-40 items-center justify-center rounded-2xl border border-emerald-100 bg-emerald-50/30">
-          <div className="text-sm font-semibold text-emerald-800">Yükleniyor...</div>
-        </div>
-      </Container>
-    );
-  }
-
   // Idempotency: same payment_request_id should not be processed twice.
   const inflightRef = React.useRef<Map<string, Promise<"SUCCESS" | "FAILED">>>(new Map());
   const cancelledRef = React.useRef<Set<string>>(new Set());
@@ -138,6 +127,17 @@ export default function CheckoutPage() {
     inflightRef.current.set(paymentRequestId, p);
     return p;
   }, []);
+
+  if (loadingProducts) {
+    return (
+      <Container className="py-8">
+        <SectionTitle title="Ödeme" subtitle="Adres, teslimat ve güvenli ödeme" />
+        <div className="mt-6 flex h-40 items-center justify-center rounded-2xl border border-emerald-100 bg-emerald-50/30">
+          <div className="text-sm font-semibold text-emerald-800">Yükleniyor...</div>
+        </div>
+      </Container>
+    );
+  }
 
   const onPay = async () => {
     if (!canPay) return;

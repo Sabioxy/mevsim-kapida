@@ -39,14 +39,28 @@ export async function POST(request: Request) {
   }
 
   try {
-    const user = await prisma.user.create({
-      data: {
-        name,
-        email,
-        role,
-        city: body.city?.trim() || null,
-        shopName: body.shopName?.trim() || null,
-      },
+    const user = await prisma.$transaction(async (tx) => {
+      const newUser = await tx.user.create({
+        data: {
+          name,
+          email,
+          role,
+          city: body.city?.trim() || null,
+          shopName: body.shopName?.trim() || null,
+        },
+      });
+
+      if (role === "SELLER") {
+        await tx.producer.create({
+          data: {
+            name: body.shopName?.trim() || name,
+            slug: (body.shopName?.trim() || name).toLowerCase().replace(/\s+/g, "-"),
+            userId: newUser.id,
+          },
+        });
+      }
+
+      return newUser;
     });
 
     return Response.json({ user }, { status: 201 });

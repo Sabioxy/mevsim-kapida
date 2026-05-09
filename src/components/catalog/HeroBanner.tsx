@@ -36,52 +36,39 @@ export function HeroBanner() {
   const msg = messages[index];
 
   return (
-    <div className="border-b border-emerald-100 bg-emerald-50/50">
-      <Container className="py-10 sm:py-14">
-        <div className="grid gap-8 sm:grid-cols-2 sm:items-center">
-          <div>
-            <div className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-100/50 px-3 py-1 text-xs font-semibold text-emerald-800">
-              Mevsim Kapıda • Doğrudan Üreticiden
-            </div>
-            <h1 className="mt-4 text-2xl font-semibold tracking-tight text-emerald-950 sm:text-4xl">
-              {msg.title}
-            </h1>
-            <p className="mt-3 text-sm leading-6 text-emerald-800/80 sm:text-base">
-              {msg.subtitle}
-            </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link href="#mevsimlik">
-                <Button>Mevsimlik Ürünler</Button>
-              </Link>
-              <Link href="/cart">
-                <Button variant="secondary">Sepete Git</Button>
-              </Link>
-            </div>
-          </div>
+    <div className="relative border-b border-emerald-100 bg-emerald-950 overflow-hidden min-h-[400px] flex items-center">
+      {/* Background Image with Overlay */}
+      <div className="absolute inset-0 z-0">
+        <img
+          src="/images/hero-fresh.png"
+          alt="Taze Meyve Sebze Reyonu"
+          className="h-full w-full object-cover opacity-40"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-950 via-emerald-900/60 to-transparent" />
+      </div>
 
-          <div className="rounded-2xl border border-emerald-100 bg-white p-5 shadow-sm shadow-emerald-100/50">
-            <div className="grid gap-3">
-              <div className="rounded-xl border border-emerald-100 bg-emerald-50/50 p-4">
-                <div className="text-xs font-semibold text-emerald-800">
-                  Dönüşüm odaklı akış
-                </div>
-                <div className="mt-1 text-sm text-emerald-950">
-                  Gramaj seç → Sepet → Adres & Teslimat → Ödeme
-                </div>
-              </div>
-              <div className="rounded-xl border border-emerald-100 bg-emerald-50/50 p-4">
-                <div className="text-xs font-semibold text-emerald-800">Şeffaf fiyat</div>
-                <div className="mt-1 text-sm text-emerald-950">
-                  Üretici baz fiyat + %10 komisyon = müşteri fiyatı
-                </div>
-              </div>
-              <div className="rounded-xl border border-emerald-100 bg-emerald-50/50 p-4">
-                <div className="text-xs font-semibold text-emerald-800">Stok güvenliği</div>
-                <div className="mt-1 text-sm text-emerald-950">
-                  SKU stok 0 ise ürün “Tükendi” ve satışa kapalı
-                </div>
-              </div>
-            </div>
+      <Container className="relative z-10 py-12 sm:py-20">
+        <div className="max-w-2xl text-white">
+          <div className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-100/50 px-3 py-1 text-xs font-semibold text-emerald-800">
+            Mevsim Kapıda • Doğrudan Üreticiden
+          </div>
+          <h1 className="mt-4 text-3xl font-bold tracking-tight text-white sm:text-6xl">
+            {msg.title}
+          </h1>
+          <p className="mt-4 text-lg leading-relaxed text-emerald-50/90 sm:text-xl">
+            {msg.subtitle}
+          </p>
+          <div className="mt-10 flex flex-wrap gap-4">
+            <Link href="#mevsimlik">
+              <Button size="lg" className="bg-emerald-600 hover:bg-emerald-500 text-white border-none px-8 py-6 text-base font-bold shadow-lg shadow-emerald-900/20">
+                Mevsimlik Ürünler
+              </Button>
+            </Link>
+            <Link href="/cart">
+              <Button variant="secondary" size="lg" className="bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-md px-8 py-6 text-base font-bold">
+                Sepete Git
+              </Button>
+            </Link>
           </div>
         </div>
       </Container>

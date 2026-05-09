@@ -61,9 +61,44 @@ Menüden **Giriş** sayfasına giderek herhangi bir şifre olmadan e-posta ve is
 
 ---
 
+## 🆕 Yeni Eklenen Özellikler (Phase 1-5)
+
+Son güncellemelerle birlikte projeye aşağıdaki profesyonel özellikler dahil edilmiştir:
+
+- **Sipariş Takip Sistemi:** Hem Adminler için genel sipariş yönetimi hem de kullanıcılar için kişisel sipariş geçmişi sayfası.
+- **Üretici (Seller) Dashboard:** Satıcı rolündeki kullanıcılar için otomatik profil oluşturma ve sadece kendi ürünlerini/siparişlerini yönettikleri özel panel.
+- **Gelişmiş Arama:** Navbar üzerinden ürün ismi veya açıklamasına göre anlık arama desteği.
+- **Yorum ve Puanlama:** Ürün detay sayfasında kullanıcıların 1-5 arası puan verebildiği ve yorum yapabildiği interaktif alan.
+- **SEO ve Performans:** Dinamik meta tagler (generateMetadata) ve özel yükleme (loading.tsx) ekranları.
+
+---
+
 ## 🛠️ Teknolojiler
-- **Framework:** Next.js (App Router, Server Actions, API Routes)
-- **Veritabanı:** Prisma ORM & SQLite (`better-sqlite3`)
+- **Framework:** Next.js (App Router)
+- **Veritabanı:** Prisma ORM & SQLite
 - **Stil:** Tailwind CSS v4
 - **Auth:** `jose` (JWT)
-- **Ikonlar ve Bileşenler:** Radix UI / Lucide (Temsili entegrasyonlar)
+- **Tarih Yönetimi:** `date-fns`
+
+---
+
+## ⚙️ Uygulamayı Çalıştırma (Adım Adım)
+
+Projeyi ilk kez çalıştıracaksanız veya hata alıyorsanız şu sırayı takip edin:
+
+1. **Terminali Açın:** VS Code kullanıyorsanız `Ctrl + "` (veya Terminal -> New Terminal) ile terminali açın.
+2. **Paketleri Kurun:**
+   ```bash
+   npm install
+   ```
+3. **Veritabanını Güncelleyin:** Eğer veritabanı hatası alıyorsanız şemayı push edin:
+   ```bash
+   npx prisma db push
+   ```
+4. **Uygulamayı Başlatın:**
+   ```bash
+   npm run dev
+   ```
+5. **Tarayıcı:** `http://localhost:3000` adresine gidin.
+
+**Not:** Eğer "Sayfa bulunamadı" veya "Ürün yok" diyorsa, yukarıdaki `seed-products` adımını (Adım 4) uygulayarak örnek verileri yüklemeyi unutmayın.

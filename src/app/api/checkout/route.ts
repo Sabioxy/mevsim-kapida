@@ -1,11 +1,16 @@
 import { prisma } from "@/lib/prisma";
 import { customerUnitPriceFromProducerBase, SHIPPING_FEE_DEFAULT } from "@/lib/pricing";
 import { processPaymentGateway } from "@/lib/payment";
+import { getSession } from "@/lib/auth-server";
+import { sendOrderNotification } from "@/lib/notifications";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { cart, address, city, customerName, customerEmail, payment } = body;
+
+    const session = await getSession();
+    const userId = session?.id;
 
     if (!cart || !cart.lines || cart.lines.length === 0) {
       return Response.json({ message: "Sepet boş" }, { status: 400 });
@@ -76,6 +81,7 @@ export async function POST(request: Request) {
       // Create the order
       const newOrder = await tx.order.create({
         data: {
+          userId,
           customerName,
           customerEmail,
           address,
@@ -90,6 +96,9 @@ export async function POST(request: Request) {
 
       return newOrder;
     });
+
+    // Send notification in background
+    void sendOrderNotification(order);
 
     return Response.json({ order });
   } catch (error: any) {

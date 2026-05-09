@@ -2,6 +2,24 @@ import { notFound } from "next/navigation";
 import { Container } from "@/components/ui/Container";
 import { ProductDetailClient } from "@/components/catalog/ProductDetailClient";
 import { prisma } from "@/lib/prisma";
+import type { Metadata } from "next";
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const p = await prisma.product.findUnique({ where: { slug } });
+  
+  if (!p) return { title: "Ürün Bulunamadı" };
+
+  return {
+    title: `${p.name} | Mevsim Kapıda`,
+    description: p.description || `${p.name} ürünü hakkında detaylı bilgi ve taze hasat seçenekleri.`,
+    openGraph: {
+      title: p.name,
+      description: p.description || "",
+      images: p.image ? [p.image] : [],
+    },
+  };
+}
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;

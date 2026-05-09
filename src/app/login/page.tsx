@@ -6,14 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Container } from "@/components/ui/Container";
 import { Input } from "@/components/ui/Input";
-import { type AuthRole } from "@/lib/auth";
-
-const roleNext: Record<AuthRole, string> = {
-  ADMIN: "/admin",
-  SELLER: "/seller",
-  USER: "/",
-};
-
+import Link from "next/link";
 import { Suspense } from "react";
 
 function LoginForm() {
@@ -21,14 +14,20 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const next = searchParams.get("next");
 
-  const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
-  const [role, setRole] = React.useState<AuthRole>("ADMIN");
+  const [password, setPassword] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
-  const login = async () => {
-    if (!name.trim() || !email.trim()) return;
+  React.useEffect(() => {
+    const { readAuthSession } = require("@/lib/auth");
+    if (readAuthSession()) {
+      router.replace("/");
+    }
+  }, [router]);
+
+  const handleLogin = async () => {
+    if (!email.trim() || !password.trim()) return;
     setLoading(true);
     setError(null);
 
@@ -36,57 +35,68 @@ function LoginForm() {
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, role }),
+        body: JSON.stringify({ email, password }),
       });
-      const data = (await response.json()) as { user?: { id: string; name: string; email: string; role: AuthRole }; message?: string };
+      const data = await response.json();
 
-      if (!response.ok || !data.user) {
-        throw new Error(data.message ?? "Giriş yapılamadı");
+      if (!response.ok) throw new Error(data.message || "Giriş yapılamadı");
+
+      // SAVE SESSION TO LOCALSTORAGE FOR CLIENT SIDE
+      const { writeAuthSession } = await import("@/lib/auth");
+      writeAuthSession(data.user);
+
+      const userRole = data.user.role;
+      let target = next || "/";
+      if (!next) {
+        if (userRole === "ADMIN") target = "/admin/orders";
+        else if (userRole === "SELLER") target = "/seller";
       }
 
-      // No need to write local session anymore, HttpOnly cookie handles it
-      const target = next && next.startsWith("/") ? next : roleNext[role];
       router.replace(target);
-    } catch (authError) {
-      setError(authError instanceof Error ? authError.message : "Giriş yapılamadı");
+      // Force refresh to update Navbar/UI
+      window.location.reload();
+    } catch (err: any) {
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  React.useEffect(() => {
-    fetch("/api/auth/logout", { method: "POST" });
-  }, []);
-
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader>
-        <div className="text-lg font-semibold text-emerald-900">Giriş Yap</div>
-        <div className="mt-1 text-sm text-emerald-600">
-          Admin veya satıcı paneline erişmek için kullanıcı kaydıyla oturum açın.
-        </div>
+    <Card className="w-full max-w-md border-emerald-100 shadow-xl shadow-emerald-50/50">
+      <CardHeader className="text-center">
+        <h1 className="text-2xl font-bold text-emerald-950">Tekrar Hoş Geldin</h1>
+        <p className="text-sm text-emerald-600 mt-1">E-posta adresinle oturum aç.</p>
       </CardHeader>
-      <CardContent className="space-y-3">
-        <div>
-          <label className="text-xs font-semibold text-emerald-700">Ad Soyad</label>
-          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Örn. Ayşe Yılmaz" />
+      <CardContent className="space-y-4">
+        <div className="space-y-1">
+          <label className="text-xs font-bold text-emerald-700 uppercase">E-posta</label>
+          <Input 
+            type="email" 
+            value={email} 
+            onChange={(e) => setEmail(e.target.value)} 
+            placeholder="ornek@mail.com" 
+          />
         </div>
-        <div>
-          <label className="text-xs font-semibold text-emerald-700">E-posta</label>
-          <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="ornek@site.com" />
+        <div className="space-y-1">
+          <label className="text-xs font-bold text-emerald-700 uppercase">Şifre</label>
+          <Input 
+            type="password" 
+            value={password} 
+            onChange={(e) => setPassword(e.target.value)} 
+            placeholder="••••••••" 
+          />
         </div>
-        <div>
-          <label className="text-xs font-semibold text-emerald-700">Rol</label>
-          <select value={role} onChange={(e) => setRole(e.target.value as AuthRole)} className="h-10 w-full rounded-md border border-emerald-200 bg-white px-3 text-sm">
-            <option value="ADMIN">Admin</option>
-            <option value="SELLER">Satıcı</option>
-            <option value="USER">Kullanıcı</option>
-          </select>
-        </div>
-        <Button className="w-full" disabled={loading} onClick={login}>
-          {loading ? "Giriş yapılıyor..." : "Giriş Yap"}
+
+        <Button className="w-full h-11" disabled={loading} onClick={handleLogin}>
+          {loading ? "Giriş Yapılıyor..." : "Giriş Yap"}
         </Button>
-        {error ? <div className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">{error}</div> : null}
+
+        {error && <div className="text-xs text-rose-600 font-bold bg-rose-50 p-3 rounded-lg border border-rose-100">{error}</div>}
+
+        <div className="text-center pt-2 text-sm text-emerald-600">
+          Hesabın yok mu? <Link href="/register" className="font-bold text-emerald-800 hover:underline">Şimdi Kayıt Ol</Link>
+        </div>
       </CardContent>
     </Card>
   );
