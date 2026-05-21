@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/Input";
 import Link from "next/link";
 import { Suspense } from "react";
 
+
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -18,13 +19,26 @@ function LoginForm() {
   const [password, setPassword] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
-    const { readAuthSession } = require("@/lib/auth");
-    if (readAuthSession()) {
-      router.replace("/");
-    }
-  }, [router]);
+    setMounted(true);
+  }, []);
+
+  React.useEffect(() => {
+    if (!mounted) return;
+    fetch("/api/auth/session")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data) {
+          router.replace("/");
+        } else {
+          const { clearAuthSession } = require("@/lib/auth");
+          clearAuthSession();
+        }
+      })
+      .catch(() => {});
+  }, [router, mounted]);
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) return;
@@ -52,9 +66,7 @@ function LoginForm() {
         else if (userRole === "SELLER") target = "/seller";
       }
 
-      router.replace(target);
-      // Force refresh to update Navbar/UI
-      window.location.reload();
+      window.location.href = target;
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -71,20 +83,20 @@ function LoginForm() {
       <CardContent className="space-y-4">
         <div className="space-y-1">
           <label className="text-xs font-bold text-emerald-700 uppercase">E-posta</label>
-          <Input 
-            type="email" 
-            value={email} 
-            onChange={(e) => setEmail(e.target.value)} 
-            placeholder="ornek@mail.com" 
+          <Input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="ornek@mail.com"
           />
         </div>
         <div className="space-y-1">
           <label className="text-xs font-bold text-emerald-700 uppercase">Şifre</label>
-          <Input 
-            type="password" 
-            value={password} 
-            onChange={(e) => setPassword(e.target.value)} 
-            placeholder="••••••••" 
+          <Input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
           />
         </div>
 

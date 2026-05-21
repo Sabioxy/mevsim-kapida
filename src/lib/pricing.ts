@@ -28,7 +28,7 @@ export const calcLineSubtotalCustomer = (
 
 export const calcCartItemsSubtotal = (cart: Cart, products: Product[]): Money => {
   return cart.lines.reduce((acc, line) => {
-    const product = products.find((p) => p.id === line.productId);
+    const product = products.find((p) => String(p.id) === String(line.productId));
     if (!product) return acc;
     return addMoney(acc, calcLineSubtotalCustomer(product, line.skuId, line.qty));
   }, TRY(0));
@@ -107,7 +107,7 @@ export const freezePrices = (args: {
     payableTotal,
     lines: args.cart.lines
       .map((line) => {
-        const product = args.products.find((p) => p.id === line.productId);
+        const product = args.products.find((p) => String(p.id) === String(line.productId));
         const sku = product?.variants.find((v) => v.skuId === line.skuId);
         if (!product || !sku) return null;
         return {
@@ -128,7 +128,7 @@ export const promoFromCode = (codeRaw: string): Promotion | null => {
   if (!code) return null;
 
   if (code === "FIRST10") return { kind: "FIRST_ORDER_PERCENT", percent: 10 };
-  if (code === "SAVE20") return { kind: "PERCENT", percent: 20 };
+  if (code === "SAVE20" || code === "KUPON") return { kind: "PERCENT", percent: 20 };
   if (code === "FREESHIP") return { kind: "FREE_SHIPPING" };
 
   return null;

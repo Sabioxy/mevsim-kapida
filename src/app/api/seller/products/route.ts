@@ -31,6 +31,7 @@ export async function POST(request: Request) {
         slug,
         description,
         category,
+        priceCents: Number(skus[0]?.priceCents || 0),
         producerId: producer.id,
         skus: {
           create: skus.map((sku: any) => ({

@@ -1,5 +1,10 @@
 import { prisma } from "@/lib/prisma";
-import { customerUnitPriceFromProducerBase, SHIPPING_FEE_DEFAULT } from "@/lib/pricing";
+import {
+  customerUnitPriceFromProducerBase,
+  SHIPPING_FEE_DEFAULT,
+  computeDiscounts,
+  calcPayableTotal,
+} from "@/lib/pricing";
 import { processPaymentGateway } from "@/lib/payment";
 import { getSession } from "@/lib/auth-server";
 import { sendOrderNotification } from "@/lib/notifications";
@@ -7,7 +12,7 @@ import { sendOrderNotification } from "@/lib/notifications";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { cart, address, city, customerName, customerEmail, payment } = body;
+    const { cart, address, city, customerName, customerEmail, payment, promotions } = body;
 
     const session = await getSession();
     const userId = session?.id;
@@ -24,9 +29,21 @@ export async function POST(request: Request) {
       return Response.json({ message: "Ödeme bilgileri eksik" }, { status: 400 });
     }
 
+    // Determine if first order
+    let isFirstOrder = true;
+    if (userId) {
+      const orderCount = await prisma.order.count({
+        where: {
+          userId,
+          status: "SUCCESS",
+        },
+      });
+      isFirstOrder = orderCount === 0;
+    }
+
     // Process checkout in a transaction to ensure atomic operations (order creation + stock deduction)
     const order = await prisma.$transaction(async (tx) => {
-      let totalCents = SHIPPING_FEE_DEFAULT.amount; // Start with shipping fee
+      let itemsSubtotalAmount = 0;
       const orderItemsData = [];
 
       for (const line of cart.lines) {
@@ -43,13 +60,13 @@ export async function POST(request: Request) {
           throw new Error(`Yetersiz stok: ${sku.label}. Mevcut stok: ${sku.stock}`);
         }
 
-        const unitCustomerPrice = customerUnitPriceFromProducerBase({
+        const unitCustomerPriceAmount = customerUnitPriceFromProducerBase({
           currency: "TRY",
-          amount: sku.priceCents,
+          amount: sku.priceCents / 100,
         }).amount;
 
-        const lineTotalCents = unitCustomerPrice * line.qty;
-        totalCents += lineTotalCents;
+        const lineTotalTRY = unitCustomerPriceAmount * line.qty;
+        itemsSubtotalAmount += lineTotalTRY;
 
         // Deduct stock
         await tx.sku.update({
@@ -64,9 +81,26 @@ export async function POST(request: Request) {
         orderItemsData.push({
           skuId: sku.skuId,
           qty: line.qty,
-          priceCents: unitCustomerPrice,
+          priceCents: Math.round(unitCustomerPriceAmount * 100),
         });
       }
+
+      // Compute final payable total in TRY
+      const itemsSubtotal = { currency: "TRY" as const, amount: itemsSubtotalAmount };
+      const { discountsTotal, shippingFeeFinal } = computeDiscounts({
+        itemsSubtotal,
+        shippingFee: SHIPPING_FEE_DEFAULT,
+        promotions: promotions || [],
+        isFirstOrder,
+      });
+
+      const payableTotal = calcPayableTotal({
+        itemsSubtotal,
+        shippingFee: shippingFeeFinal,
+        discountsTotal,
+      });
+
+      const totalCents = Math.round(payableTotal.amount * 100);
 
       // Proceed with Payment simulation
       const paymentResult = await processPaymentGateway({

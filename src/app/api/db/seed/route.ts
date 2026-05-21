@@ -6,7 +6,7 @@ export async function GET() {
     // 1. Create or get a default seller/producer
     // We'll look for an existing user or create a "seed-seller"
     let seller = await prisma.user.findFirst({ where: { role: "SELLER" } });
-    
+
     if (!seller) {
       seller = await prisma.user.create({
         data: {
@@ -75,7 +75,7 @@ export async function GET() {
       {
         name: "Marul",
         slug: "marul",
-        category: "taze-sebze",
+        category: "dogal-tarim-urunleri",
         image: "/images/marul.jpg",
         description: "Taze ve diri göbek marul.",
         priceCents: 2500,
@@ -86,7 +86,7 @@ export async function GET() {
       {
         name: "Avokado",
         slug: "avokado",
-        category: "taze-meyve",
+        category: "dogal-tarim-urunleri",
         image: "/images/avokado.jpg",
         description: "Yumuşak ve lezzetli taze avokado.",
         priceCents: 5000,

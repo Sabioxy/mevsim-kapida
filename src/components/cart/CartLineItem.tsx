@@ -25,7 +25,7 @@ export function CartLineItem({
   onRemove: (lineId: string) => void;
   products: Product[];
 }) {
-  const product = products.find((p) => p.id === productId);
+  const product = products.find((p) => String(p.id) === String(productId));
   const sku = product?.variants.find((v) => v.skuId === skuId);
   if (!product || !sku) return null;
 

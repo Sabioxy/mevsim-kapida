@@ -8,6 +8,7 @@ import { Container } from "@/components/ui/Container";
 import { Input } from "@/components/ui/Input";
 import Link from "next/link";
 
+
 export default function RegisterPage() {
   const router = useRouter();
   const [name, setName] = React.useState("");
@@ -18,13 +19,26 @@ export default function RegisterPage() {
   const [shopName, setShopName] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
-    const { readAuthSession } = require("@/lib/auth");
-    if (readAuthSession()) {
-      router.replace("/");
-    }
-  }, [router]);
+    setMounted(true);
+  }, []);
+
+  React.useEffect(() => {
+    if (!mounted) return;
+    fetch("/api/auth/session")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data) {
+          router.replace("/");
+        } else {
+          const { clearAuthSession } = require("@/lib/auth");
+          clearAuthSession();
+        }
+      })
+      .catch(() => {});
+  }, [router, mounted]);
 
   const handleRegister = async () => {
     if (!name.trim() || !email.trim() || !password.trim()) {
@@ -48,9 +62,11 @@ export default function RegisterPage() {
       const { writeAuthSession } = await import("@/lib/auth");
       writeAuthSession(data.user);
 
-      router.push(role === "SELLER" ? "/seller" : "/");
-      // Force refresh to update Navbar/UI
-      window.location.reload();
+      // Yönlendirme: next parametresi varsa öncelikli, yoksa role göre
+      const params = new URLSearchParams(window.location.search);
+      const next = params.get("next");
+      let target = next || (role === "SELLER" ? "/seller" : "/");
+      window.location.href = target;
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -80,8 +96,8 @@ export default function RegisterPage() {
           </div>
           <div className="space-y-1">
             <label className="text-xs font-bold text-emerald-700 uppercase">Hesap Türü</label>
-            <select 
-              value={role} 
+            <select
+              value={role}
               onChange={(e) => setRole(e.target.value)}
               className="w-full h-10 rounded-xl border border-emerald-100 bg-emerald-50/30 px-3 text-sm focus:border-emerald-500 outline-none transition-all"
             >

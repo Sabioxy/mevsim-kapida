@@ -107,6 +107,27 @@ export const PRODUCTS: Product[] = [
       },
     ],
   },
+  {
+    id: "prd-marul",
+    slug: "marul",
+    title: "Marul",
+    subtitle: "Diri, çıtır göbek marul",
+    imageUrl: "/images/marul.jpg",
+    category: "dogal-tarim-urunleri",
+    badges: ["MEVSIMINDE"],
+    producer: producer2,
+    description:
+      "Doğal tarım yöntemleriyle yetiştirilen, katkısız ve taze göbek marullarımız sofralarınıza lezzet katar.",
+    variants: [
+      {
+        skuId: "sku-marul-1adet",
+        label: "1 adet",
+        grams: 500,
+        producerBasePrice: TRY(25),
+        stock: 30,
+      },
+    ],
+  },
 ];
 
 export const getProductBySlug = (slug: string): Product | undefined => {

@@ -1,0 +1,43 @@
+npm run dev ile çalıştır.
+
+npx prisma studio ile veritabanına bakabilirsin.
+
+Genel Amaç ve Yapı
+Amaç: Kullanıcıların taze ürünleri (meyve, sebze vb.) çevrimiçi olarak üreticilerden veya satıcılardan sipariş edebileceği, abonelik ve sepet yönetimi gibi gelişmiş özelliklere sahip bir pazar yeri sunmak.
+Teknolojiler: Next.js (App Router), React, Prisma (sqlite), TailwindCSS, TypeScript.
+Temel İşlevler
+1. Kullanıcı Yönetimi ve Kimlik Doğrulama
+Kayıt, giriş, çıkış ve oturum yönetimi (JWT veya session tabanlı).
+Kullanıcı rolleri: ADMIN, USER, SELLER.
+Kullanıcılar profil bilgilerini ve sipariş geçmişini görebilir.
+2. Ürün ve Katalog Yönetimi
+Ürünler, kategoriler ve varyantlar (SKU) ile birlikte listelenir.
+Ürün detay sayfası, stok ve fiyat bilgisi, üretici bilgisi gösterimi.
+Ürünler üreticilere (Producer) bağlıdır.
+3. Sepet ve Sipariş Yönetimi
+Kullanıcılar ürünleri sepete ekleyebilir, miktar ayarlayabilir, kupon uygulayabilir.
+Sipariş oluşturma, ödeme ve sipariş geçmişi görüntüleme.
+Siparişler ve sipariş kalemleri (Order, OrderItem) ile ilişkili.
+4. Abonelik Sistemi
+Kullanıcılar belirli ürünlere veya kutulara abone olabilir.
+Abonelik planları ve satın alma işlemleri yönetilir.
+5. Satıcı/Üretici Paneli
+Üreticiler kendi ürünlerini ve siparişlerini yönetebilir.
+Ürün ekleme, güncelleme ve silme işlemleri.
+6. Yönetici Paneli
+Siparişler, kullanıcılar, ürünler ve üreticiler üzerinde tam kontrol.
+Veritabanı sıfırlama (wipe) ve örnek veri ekleme (seed) endpointleri.
+Teknik Mantık ve Akış
+API Routes: Tüm veri işlemleri (CRUD) Next.js API route’ları üzerinden yapılır. (src/app/api/...)
+Prisma ORM: Veritabanı işlemleri için kullanılır. Model ilişkileri (User, Product, Producer, Sku, Order, Review) açıkça tanımlanmıştır.
+Ortam Değişkenleri: Veritabanı bağlantısı ve diğer hassas bilgiler .env dosyasında tutulur.
+Kullanıcı Arayüzü: Modern ve responsive arayüz, bileşen tabanlı mimariyle (Cart, ProductCard, PlanCard, vb.) oluşturulmuştur.
+Yetkilendirme: Her rolün erişebileceği sayfalar ve işlemler sınırlandırılmıştır.
+Seed/Wipe: Geliştirme ve test için veritabanını sıfırlama ve örnek veri ekleme endpointleri mevcuttur.
+Özet Akış
+Kullanıcı siteye gelir, ürünleri inceler, sepete ekler.
+Giriş yapar veya kayıt olur.
+Sepetini onaylar, ödeme yapar ve sipariş oluşturur.
+Siparişler ve abonelikler profil sayfasında görüntülenir.
+Üreticiler kendi ürün ve siparişlerini yönetir.
+Admin tüm sistemi yönetir, gerekirse veritabanını sıfırlar veya seedler.

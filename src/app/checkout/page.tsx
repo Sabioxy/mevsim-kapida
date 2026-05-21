@@ -6,6 +6,7 @@ import { Container } from "@/components/ui/Container";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
+import dayjs from "dayjs";
 import { Button } from "@/components/ui/Button";
 import { OrderSummary } from "@/components/cart/OrderSummary";
 import { useCart } from "@/providers/CartProvider";
@@ -23,10 +24,10 @@ import type { Product } from "@/lib/types";
 function isAddressValid(a: Address) {
   return Boolean(
     a.fullName.trim() &&
-      a.phone.trim() &&
-      a.city.trim() &&
-      a.district.trim() &&
-      a.addressLine.trim(),
+    a.phone.trim() &&
+    a.city.trim() &&
+    a.district.trim() &&
+    a.addressLine.trim(),
   );
 }
 
@@ -39,23 +40,55 @@ export default function CheckoutPage() {
     setIsFirstOrder,
   } = useCart();
 
-  const [address, setAddress] = React.useState<Address & { email: string }>({
-    fullName: "",
-    phone: "",
-    city: "",
-    district: "",
-    addressLine: "",
-    email: "",
+  const [address, setAddress] = React.useState<Address & { email: string }>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("userAddressInfo");
+      if (saved) return JSON.parse(saved);
+    }
+    return {
+      fullName: "",
+      phone: "",
+      city: "",
+      district: "",
+      addressLine: "",
+      email: "",
+    };
   });
   const [delivery, setDelivery] = React.useState<DeliveryMethod>("STANDARD");
 
-  const [paymentDetails, setPaymentDetails] = React.useState({
-    cardNumber: "",
-    expiryMonth: "",
-    expiryYear: "",
-    cvc: "",
-    cardHolderName: "",
+  // Adres değiştiğinde localStorage'a kaydet
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("userAddressInfo", JSON.stringify(address));
+    }
+  }, [address]);
+
+  const [paymentDetails, setPaymentDetails] = React.useState<{
+    cardNumber: string;
+    expiryMonth: string;
+    expiryYear: string;
+    cvc: string;
+    cardHolderName: string;
+  }>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("userCardInfo");
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch {}
+      }
+    }
+    return {
+      cardNumber: "",
+      expiryMonth: "",
+      expiryYear: "",
+      cvc: "",
+      cardHolderName: "",
+    };
   });
+
+  // Planlı teslimat için tarih seçimi
+  const [scheduledDate, setScheduledDate] = React.useState<string>("");
 
   const [payment, setPayment] = React.useState<PaymentState>({ status: "INIT" });
   const [priceFreeze, setPriceFreeze] = React.useState<PriceFreezeSnapshot | null>(null);
@@ -96,7 +129,7 @@ export default function CheckoutPage() {
   );
 
   const hasOutOfStock = cart.lines.some((l) => {
-    const p = products.find((x) => x.id === l.productId);
+    const p = products.find((x) => String(x.id) === String(l.productId));
     const sku = p?.variants.find((v) => v.skuId === l.skuId);
     return !sku || sku.stock <= 0;
   });
@@ -158,6 +191,7 @@ export default function CheckoutPage() {
           customerName: address.fullName,
           customerEmail: address.email || "guest@example.com",
           payment: paymentDetails,
+          promotions,
         }),
       });
 
@@ -302,11 +336,10 @@ export default function CheckoutPage() {
                   <button
                     type="button"
                     onClick={() => setDelivery("STANDARD")}
-                    className={`rounded-xl border p-4 text-left text-sm transition-colors ${
-                      delivery === "STANDARD"
-                        ? "border-emerald-600 bg-emerald-50/50 shadow-sm shadow-emerald-100"
-                        : "border-emerald-100 bg-white hover:bg-emerald-50/30"
-                    }`}
+                    className={`rounded-xl border p-4 text-left text-sm transition-colors ${delivery === "STANDARD"
+                      ? "border-emerald-600 bg-emerald-50/50 shadow-sm shadow-emerald-100"
+                      : "border-emerald-100 bg-white hover:bg-emerald-50/30"
+                      }`}
                   >
                     <div className="font-semibold text-emerald-950">Standart</div>
                     <div className="mt-1 text-xs text-emerald-800/80">1-2 iş günü</div>
@@ -314,16 +347,28 @@ export default function CheckoutPage() {
                   <button
                     type="button"
                     onClick={() => setDelivery("SCHEDULED")}
-                    className={`rounded-xl border p-4 text-left text-sm transition-colors ${
-                      delivery === "SCHEDULED"
-                        ? "border-emerald-600 bg-emerald-50/50 shadow-sm shadow-emerald-100"
-                        : "border-emerald-100 bg-white hover:bg-emerald-50/30"
-                    }`}
+                    className={`rounded-xl border p-4 text-left text-sm transition-colors ${delivery === "SCHEDULED"
+                      ? "border-emerald-600 bg-emerald-50/50 shadow-sm shadow-emerald-100"
+                      : "border-emerald-100 bg-white hover:bg-emerald-50/30"
+                      }`}
                   >
                     <div className="font-semibold text-emerald-950">Planlı</div>
-                    <div className="mt-1 text-xs text-emerald-800/80">Teslimat günü seçimi (MVP)</div>
+                    <div className="mt-1 text-xs text-emerald-800/80">Teslimat günü seçimi</div>
                   </button>
                 </div>
+                {delivery === "SCHEDULED" && (
+                  <div className="mt-4">
+                    <label className="text-xs font-semibold text-emerald-700">Teslimat Günü</label>
+                    <Input
+                      type="date"
+                      value={scheduledDate}
+                      min={dayjs().format("YYYY-MM-DD")}
+                      max={dayjs().add(7, "day").format("YYYY-MM-DD")}
+                      onChange={e => setScheduledDate(e.target.value)}
+                    />
+                    <div className="text-xs text-emerald-600 mt-1">Bugünden itibaren en fazla 7 gün sonrası seçilebilir.</div>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -340,7 +385,7 @@ export default function CheckoutPage() {
                     <label className="text-xs font-semibold text-emerald-700">Kart Üzerindeki İsim</label>
                     <Input
                       value={paymentDetails.cardHolderName}
-                      onChange={(e) => setPaymentDetails((p) => ({ ...p, cardHolderName: e.target.value }))}
+                      onChange={e => setPaymentDetails(p => ({ ...p, cardHolderName: e.target.value }))}
                       placeholder="Örn: Ayşe Yılmaz"
                     />
                   </div>
@@ -348,8 +393,15 @@ export default function CheckoutPage() {
                     <label className="text-xs font-semibold text-emerald-700">Kart Numarası</label>
                     <Input
                       value={paymentDetails.cardNumber}
-                      onChange={(e) => setPaymentDetails((p) => ({ ...p, cardNumber: e.target.value }))}
+                      onChange={e => {
+                        // Sadece rakam ve otomatik boşluk ekle
+                        let val = e.target.value.replace(/\D/g, "").slice(0, 16);
+                        val = val.replace(/(.{4})/g, "$1 ").trim();
+                        setPaymentDetails(p => ({ ...p, cardNumber: val }));
+                      }}
                       placeholder="0000 0000 0000 0000"
+                      maxLength={19}
+                      inputMode="numeric"
                     />
                   </div>
                   <div>
@@ -357,15 +409,23 @@ export default function CheckoutPage() {
                     <div className="flex gap-2">
                       <Input
                         value={paymentDetails.expiryMonth}
-                        onChange={(e) => setPaymentDetails((p) => ({ ...p, expiryMonth: e.target.value }))}
+                        onChange={e => {
+                          let val = e.target.value.replace(/\D/g, "").slice(0, 2);
+                          setPaymentDetails(p => ({ ...p, expiryMonth: val }));
+                        }}
                         placeholder="AA"
                         maxLength={2}
+                        inputMode="numeric"
                       />
                       <Input
                         value={paymentDetails.expiryYear}
-                        onChange={(e) => setPaymentDetails((p) => ({ ...p, expiryYear: e.target.value }))}
+                        onChange={e => {
+                          let val = e.target.value.replace(/\D/g, "").slice(0, 2);
+                          setPaymentDetails(p => ({ ...p, expiryYear: val }));
+                        }}
                         placeholder="YY"
                         maxLength={2}
+                        inputMode="numeric"
                       />
                     </div>
                   </div>
@@ -373,9 +433,13 @@ export default function CheckoutPage() {
                     <label className="text-xs font-semibold text-emerald-700">CVC</label>
                     <Input
                       value={paymentDetails.cvc}
-                      onChange={(e) => setPaymentDetails((p) => ({ ...p, cvc: e.target.value }))}
+                      onChange={e => {
+                        let val = e.target.value.replace(/\D/g, "").slice(0, 3);
+                        setPaymentDetails(p => ({ ...p, cvc: val }));
+                      }}
                       placeholder="123"
                       maxLength={3}
+                      inputMode="numeric"
                     />
                   </div>
                 </div>

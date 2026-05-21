@@ -63,7 +63,7 @@ export default function CartPage() {
   );
 
   const hasOutOfStock = cart.lines.some((l) => {
-    const p = products.find((x) => x.id === l.productId);
+    const p = products.find((x) => String(x.id) === String(l.productId));
     const sku = p?.variants.find((v) => v.skuId === l.skuId);
     return !sku || sku.stock <= 0;
   });

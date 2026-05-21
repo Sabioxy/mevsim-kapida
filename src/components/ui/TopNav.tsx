@@ -17,8 +17,18 @@ export function TopNav() {
     setMounted(true);
     fetch("/api/auth/session")
       .then((res) => res.json())
-      .then((data) => setSession(data))
-      .catch(() => setSession(null));
+      .then((data) => {
+        if (!data) {
+          const { clearAuthSession } = require("@/lib/auth");
+          clearAuthSession();
+        }
+        setSession(data);
+      })
+      .catch(() => {
+        const { clearAuthSession } = require("@/lib/auth");
+        clearAuthSession();
+        setSession(null);
+      });
   }, []);
 
   const logout = async () => {
@@ -34,8 +44,8 @@ export function TopNav() {
           <Link href="/" className="font-semibold text-emerald-800 text-lg whitespace-nowrap">
             Mevsim Kapıda
           </Link>
-          
-          <form 
+
+          <form
             onSubmit={(e) => {
               e.preventDefault();
               const q = (e.currentTarget.elements.namedItem("q") as HTMLInputElement).value;
@@ -43,14 +53,14 @@ export function TopNav() {
             }}
             className="hidden md:flex flex-1 max-w-md relative"
           >
-            <input 
+            <input
               name="q"
-              type="text" 
-              placeholder="Taze ürün ara..." 
+              type="text"
+              placeholder="Taze ürün ara..."
               className="w-full h-9 rounded-full bg-emerald-50 border border-emerald-100 px-4 text-sm outline-none focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100 transition-all"
             />
             <button type="submit" className="absolute right-3 top-2 text-emerald-400 hover:text-emerald-600">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
             </button>
           </form>
         </div>
@@ -59,7 +69,7 @@ export function TopNav() {
           <div className="relative group">
             <button className="flex items-center gap-1 text-emerald-950/70 hover:text-emerald-700 font-medium transition-colors py-4">
               Keşfet
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:rotate-180 transition-transform"><path d="m6 9 6 6 6-6"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:rotate-180 transition-transform"><path d="m6 9 6 6 6-6" /></svg>
             </button>
             <div className="absolute left-0 top-full hidden group-hover:block w-48 rounded-xl border border-emerald-100 bg-white p-2 shadow-xl shadow-emerald-900/5 z-50">
               <Link href="/" className="block rounded-lg px-3 py-2 text-xs font-semibold text-emerald-900 hover:bg-emerald-50 transition-colors">
@@ -83,7 +93,7 @@ export function TopNav() {
           <Link href="/subscription" className="text-emerald-950/70 hover:text-emerald-700 font-medium transition-colors">
             Abonelik
           </Link>
-          
+
           {session?.role === "ADMIN" && (
             <Link href="/admin/orders" className="text-emerald-950 hover:text-emerald-700 font-bold transition-colors">
               Siparişler

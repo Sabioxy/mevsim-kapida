@@ -13,7 +13,15 @@ export async function GET() {
         userId: session.id,
       },
       include: {
-        items: true,
+        items: {
+          include: {
+            sku: {
+              include: {
+                product: true,
+              },
+            },
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",

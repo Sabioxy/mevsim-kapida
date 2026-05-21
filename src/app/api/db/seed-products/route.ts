@@ -4,13 +4,26 @@ import { PRODUCTS } from "@/lib/catalog";
 
 export async function POST() {
   try {
+    let seller = await prisma.user.findFirst({ where: { role: "SELLER" } });
+    if (!seller) {
+      seller = await prisma.user.create({
+        data: {
+          name: "Mevsim Üreticisi",
+          email: "uretici@mevsim.com",
+          password: "password123",
+          role: "SELLER",
+          city: "Antalya",
+        }
+      });
+    }
+
     for (const p of PRODUCTS) {
       const producerSlug = p.producer.name.toLowerCase().replace(/[^a-z0-9ğüşöçıİĞÜŞÖÇ\s-]/gi, "").replace(/\s+/g, "-");
 
       const producer = await prisma.producer.upsert({
         where: { slug: producerSlug },
         update: { name: p.producer.name },
-        create: { name: p.producer.name, slug: producerSlug },
+        create: { name: p.producer.name, slug: producerSlug, userId: seller.id },
       });
 
       const up = await prisma.product.upsert({
