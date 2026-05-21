@@ -17,7 +17,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Üretici profili bulunamadı" }, { status: 404 });
     }
 
-    const { name, description, category, skus } = await request.json();
+    const { name, description, category, image, skus } = await request.json();
 
     if (!name || !skus || skus.length === 0) {
       return NextResponse.json({ message: "Eksik bilgi" }, { status: 400 });
@@ -31,6 +31,7 @@ export async function POST(request: Request) {
         slug,
         description,
         category,
+        image,
         priceCents: Number(skus[0]?.priceCents || 0),
         producerId: producer.id,
         skus: {

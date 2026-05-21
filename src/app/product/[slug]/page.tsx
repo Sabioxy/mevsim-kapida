@@ -6,7 +6,15 @@ import type { Metadata } from "next";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const p = await prisma.product.findUnique({ where: { slug } });
+  const decodedSlug = decodeURIComponent(slug);
+  const p = await prisma.product.findFirst({
+    where: {
+      OR: [
+        { slug: slug },
+        { slug: decodedSlug }
+      ]
+    }
+  });
   
   if (!p) return { title: "Ürün Bulunamadı" };
 
@@ -23,8 +31,17 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+  const decodedSlug = decodeURIComponent(slug);
 
-  const p = await prisma.product.findUnique({ where: { slug }, include: { producer: true, skus: true } });
+  const p = await prisma.product.findFirst({
+    where: {
+      OR: [
+        { slug: slug },
+        { slug: decodedSlug }
+      ]
+    },
+    include: { producer: true, skus: true }
+  });
   if (!p) notFound();
 
   const product = {

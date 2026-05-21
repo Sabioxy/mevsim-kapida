@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { CATEGORIES } from "@/lib/catalog";
+import { AuthGate } from "@/components/auth/AuthGate";
 
 type Prod = any;
 
@@ -12,6 +13,7 @@ export default function AdminProductsPage() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [status, setStatus] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -84,7 +86,8 @@ export default function AdminProductsPage() {
   }
 
   return (
-    <div className="p-6">
+    <AuthGate allowedRoles={["ADMIN"]}>
+      <div className="p-6">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h2 className="text-2xl font-semibold">Ürün Yönetimi</h2>
@@ -118,7 +121,66 @@ export default function AdminProductsPage() {
             <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Ürün adı" className="rounded-md border border-emerald-200 p-2 text-sm outline-none focus:border-blue-500" />
             <input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} placeholder="slug" className="rounded-md border border-emerald-200 p-2 text-sm outline-none focus:border-blue-500" />
             <input value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="Fiyat (ör. 12.5)" className="rounded-md border border-emerald-200 p-2 text-sm outline-none focus:border-blue-500" />
-            <input value={form.image} onChange={(e) => setForm({ ...form, image: e.target.value })} placeholder="Görsel URL" className="rounded-md border border-emerald-200 p-2 text-sm outline-none focus:border-blue-500" />
+            <div className="flex gap-2">
+              <input value={form.image} onChange={(e) => setForm({ ...form, image: e.target.value })} placeholder="Görsel URL" className="flex-1 rounded-md border border-emerald-200 p-2 text-sm outline-none focus:border-blue-500" />
+              {form.image && (
+                <div className="relative h-9 w-9 flex-shrink-0 rounded border border-emerald-200 overflow-hidden bg-gray-50">
+                  <img src={form.image} alt="Görsel" className="h-full w-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, image: "" })}
+                    className="absolute inset-0 bg-black/60 opacity-0 hover:opacity-100 flex items-center justify-center text-[10px] text-white transition-opacity font-bold cursor-pointer"
+                  >
+                    Kaldır
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div>
+              <label 
+                htmlFor="admin-file-upload" 
+                className={`flex flex-col items-center justify-center border border-dashed rounded-lg p-2.5 text-center cursor-pointer transition-all duration-200 ${
+                  uploading 
+                    ? "border-emerald-300 bg-emerald-50/20" 
+                    : "border-emerald-200 hover:border-emerald-400 hover:bg-emerald-50/10"
+                }`}
+              >
+                <span className="text-xs font-semibold text-emerald-800 flex items-center gap-2">
+                  <span>{uploading ? "⏳" : "📷"}</span>
+                  <span>{uploading ? "Görsel Yükleniyor..." : "Dosya Yükle"}</span>
+                </span>
+              </label>
+              <input 
+                type="file" 
+                id="admin-file-upload" 
+                accept="image/*" 
+                disabled={uploading}
+                className="hidden" 
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  
+                  setUploading(true);
+                  const uploadForm = new FormData();
+                  uploadForm.append("file", file);
+                  
+                  try {
+                    const res = await fetch("/api/upload", {
+                      method: "POST",
+                      body: uploadForm,
+                    });
+                    const result = await res.json();
+                    if (!res.ok) throw new Error(result.error || "Görsel yüklenemedi");
+                    setForm({ ...form, image: result.url });
+                  } catch (err: any) {
+                    alert(err.message);
+                  } finally {
+                    setUploading(false);
+                  }
+                }}
+              />
+            </div>
             <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} className="rounded-md border border-emerald-200 p-2 text-sm outline-none focus:border-blue-500">
               <option value="">Kategori seçin</option>
               {CATEGORIES.map((category) => (
@@ -191,5 +253,6 @@ export default function AdminProductsPage() {
         </div>
       </div>
     </div>
+  </AuthGate>
   );
 }

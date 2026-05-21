@@ -1,6 +1,10 @@
 npm run dev ile çalıştır.
 
 npx prisma studio ile veritabanına bakabilirsin.
+uretici@mevsim.com password123 ile satıcı girişi yapabilirsin. (eser@gmail.com eser123 bu da başka satıcı)
+ipek@gmail.com 85208520 ile kullanıcı girişi yapabilirsin.
+admin@mevsim.com admin123 ile admin girişi yapabilirsin.
+
 
 Genel Amaç ve Yapı
 Amaç: Kullanıcıların taze ürünleri (meyve, sebze vb.) çevrimiçi olarak üreticilerden veya satıcılardan sipariş edebileceği, abonelik ve sepet yönetimi gibi gelişmiş özelliklere sahip bir pazar yeri sunmak.

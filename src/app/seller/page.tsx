@@ -45,6 +45,8 @@ export default function SellerDashboardPage() {
   const [data, setData] = React.useState<{ producer: any; orders: Order[] } | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+  const [imageUrl, setImageUrl] = React.useState<string>("");
+  const [uploading, setUploading] = React.useState(false);
 
   const loadDashboard = async () => {
     setLoading(true);
@@ -115,6 +117,7 @@ export default function SellerDashboardPage() {
                     name: formData.get("name"),
                     description: formData.get("description"),
                     category: formData.get("category"),
+                    image: imageUrl || null,
                     skus: [
                       {
                         label: formData.get("sku_label"),
@@ -135,6 +138,7 @@ export default function SellerDashboardPage() {
                     alert("Ürün başarıyla eklendi!");
                     loadDashboard();
                     form.reset();
+                    setImageUrl("");
                   } catch (err: any) {
                     alert(err.message);
                   }
@@ -159,6 +163,71 @@ export default function SellerDashboardPage() {
                   </select>
                 </div>
                 
+                <div>
+                  <label className="text-[10px] font-bold text-emerald-600 uppercase block mb-1">Ürün Görseli</label>
+                  {imageUrl ? (
+                    <div className="relative rounded-lg border border-emerald-200 overflow-hidden bg-emerald-50/10 p-2 flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <img src={imageUrl} alt="Ürün Görseli" className="h-12 w-12 rounded object-cover border border-emerald-100" />
+                        <span className="text-[10px] text-emerald-700 font-medium truncate max-w-[120px]">Görsel yüklendi</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setImageUrl("")}
+                        className="text-xs text-rose-600 hover:text-rose-900 font-medium cursor-pointer"
+                      >
+                        Kaldır
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="relative">
+                      <label 
+                        htmlFor="seller-file-upload" 
+                        className={`flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-all duration-200 ${
+                          uploading 
+                            ? "border-emerald-300 bg-emerald-50/20" 
+                            : "border-emerald-200 hover:border-emerald-400 hover:bg-emerald-50/10"
+                        }`}
+                      >
+                        <div className="text-xl mb-1">{uploading ? "⏳" : "📷"}</div>
+                        <div className="text-xs font-semibold text-emerald-800">
+                          {uploading ? "Görsel Yükleniyor..." : "Görsel Seçin veya Sürükleyin"}
+                        </div>
+                        <div className="text-[9px] text-emerald-500 mt-0.5">PNG, JPG veya WEBP (Maks. 5MB)</div>
+                      </label>
+                      <input 
+                        type="file" 
+                        id="seller-file-upload" 
+                        accept="image/*" 
+                        disabled={uploading}
+                        className="hidden" 
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          
+                          setUploading(true);
+                          const uploadForm = new FormData();
+                          uploadForm.append("file", file);
+                          
+                          try {
+                            const res = await fetch("/api/upload", {
+                              method: "POST",
+                              body: uploadForm,
+                            });
+                            const result = await res.json();
+                            if (!res.ok) throw new Error(result.error || "Görsel yüklenemedi");
+                            setImageUrl(result.url);
+                          } catch (err: any) {
+                            alert(err.message);
+                          } finally {
+                            setUploading(false);
+                          }
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
+                
                 <div className="border-t border-emerald-100 pt-3">
                   <div className="text-[10px] font-bold text-emerald-600 uppercase mb-2">Varyant (SKU) Bilgileri</div>
                   <div className="grid grid-cols-2 gap-2">
@@ -181,19 +250,45 @@ export default function SellerDashboardPage() {
             <CardContent className="p-4">
               <div className="mb-6">
                  <div className="text-xs font-bold text-emerald-600 uppercase mb-3">Mevcut Ürünlerim</div>
-                 <div className="grid gap-2 sm:grid-cols-2">
-                    {data?.producer.products.map((p: any) => (
-                      <div key={p.id} className="rounded-lg border border-emerald-50 bg-emerald-50/20 p-2">
-                        <div className="text-xs font-bold text-emerald-900">{p.name}</div>
-                        {p.skus.map((s: any) => (
-                          <div key={s.skuId} className="flex justify-between text-[10px] text-emerald-700">
-                            <span>{s.label}</span>
-                            <span>{s.stock} adet</span>
-                          </div>
-                        ))}
-                      </div>
-                    ))}
-                 </div>
+                  <div className="grid gap-2 sm:grid-cols-2">
+                     {data?.producer.products.map((p: any) => (
+                       <div key={p.id} className="rounded-lg border border-emerald-100 bg-emerald-50/20 p-3 flex flex-col justify-between">
+                         <div>
+                           <div className="flex justify-between items-start mb-1">
+                             <div className="text-xs font-bold text-emerald-900">{p.name}</div>
+                             <button
+                               onClick={async () => {
+                                 if (confirm("Bu ürünü silmek istediğinize emin misiniz?")) {
+                                   try {
+                                     const res = await fetch(`/api/seller/products/${p.id}`, {
+                                       method: "DELETE"
+                                     });
+                                     if (!res.ok) {
+                                       const errData = await res.json();
+                                       throw new Error(errData.message || "Silme başarısız");
+                                     }
+                                     alert("Ürün başarıyla silindi!");
+                                     loadDashboard();
+                                   } catch (err: any) {
+                                     alert(err.message);
+                                   }
+                                 }
+                               }}
+                               className="text-[10px] text-rose-600 hover:text-rose-900 font-semibold cursor-pointer"
+                             >
+                               Sil
+                             </button>
+                           </div>
+                           {p.skus.map((s: any) => (
+                             <div key={s.skuId} className="flex justify-between text-[10px] text-emerald-700">
+                               <span>{s.label}</span>
+                               <span>{s.stock} adet</span>
+                             </div>
+                           ))}
+                         </div>
+                       </div>
+                     ))}
+                  </div>
               </div>
 
               {data?.orders.length === 0 ? (
